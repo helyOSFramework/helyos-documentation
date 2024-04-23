@@ -27,9 +27,10 @@ Mission
 -------
 A mission consists of a group of one or more assignments, delivered to one single agent or to several agents. It usually originates from the client: The client creates a mission and helyOS uses the microservices to decompose the mission into several assignments. The microservices will also define the order of execution of the assignments. In principle, the client does not create assignments. Rather, the client creates missions and the microservices create assignments. 
 
+.. _instant_actions: 
 Instant Actions
 ---------------
-Identical to the VDA5050 protocol, helyOS core can send instant commands from the user interface to the agents. These commands are independent of any assignment. 
+helyOS core can send instantantaneous commands from external applications directly to the agents. These commands are independent of any mission, assignment or agent status. 
 
 Microservices
 -------------

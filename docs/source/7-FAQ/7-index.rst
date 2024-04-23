@@ -31,7 +31,7 @@ It means that as soon helyOS receives a mission request, helyOS will:
 - sequentially dispatch the request data to these services,
 - periodically pool the server response if it is not immediately  available,
 - forward the response from one service to the next one (if required),
-- deliver the service response to the agents
+- deliver the service response to the agents as assignments.
 
 
 What does it means that "helyOS orchestrates assignments"?

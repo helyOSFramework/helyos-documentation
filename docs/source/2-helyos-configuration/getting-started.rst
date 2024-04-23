@@ -63,6 +63,7 @@ helyOS settings
 - MESSAGE_RATE_LIMIT:  maximum burst of number of messages per second that an agent is allowed publish to helyOS. (default = 150)  
 - MESSAGE_UPDATE_LIMIT: maximum burst of number of database updates per second originated from messages publishing. E.g. status update messages. (default = 20)
 - WAIT_AGENT_STATUS_PERIOD:  time in seconds that helyOS waits for an agent to change to the required status before triggering a mission. (default = 20)
+- DB_BATCHING_TIME: time in milliseconds that helyOS collects updates before pushing them to the database. It is used for non-prioritized updates. (default = 1000)
 
 (Optional settings)
 

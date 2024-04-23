@@ -6,8 +6,8 @@ project = 'helyOS Developer Manual'
 copyright = '2023, Fraunhofer IVI'
 author = 'Fraunhofer IVI'
 
-release = '2.0'
-version = '2.0.0'
+release = '2.0.4'
+version = '2.0.4'
 
 # -- General configuration
 
