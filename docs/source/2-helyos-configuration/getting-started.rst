@@ -1,14 +1,14 @@
 Getting Started 
 +++++++++++++++
 
-Utilizing the Docker image provides the simplest method for running helyOS. T
-his image can operate locally or be deployed via a cloud provider. 
-For convenience, all components and environment variables should be declared within the docker-compose.yml file
+Utilizing the Docker image provides the simplest method for running helyOS. 
+This image can operate locally or be deployed via a cloud provider. 
+For convenience, all components and environment variables should be declared or loaded via the docker-compose.yml file.
 
 Environment Variables
 ---------------------
 
-Database connection
+Database Connection
 ===================
 
     helyOS saves all the data in a PostgreSQL database. The database can be hosted in the same server as helyOS or in a different server.
@@ -30,7 +30,7 @@ GraphQL Interface
 - JWT_SECRET: secret key to encrypt the JWT token.
 
 
-RabbitMQ connection
+RabbitMQ Connection
 ===================
     RabbitMQ is the message broker used by helyOS to communicate with the agents. 
     helyOS core does not only publish and consume messages from the RabbitMQ server, but also creates the necessary accounts, topic exchanges and queues.
@@ -55,7 +55,7 @@ RabbitMQ connection
 - AGENT_UPDATE_QUEUE: rabbitmq queue name where high priority messages from agents are published.
 
 
-helyOS settings
+helyOS Settings
 ===============
 
 - ENCRYPT (not implemented yet): none | agent | helyos | helyos-agent. RSA encription betwenn helyos core and agent. 
@@ -63,10 +63,11 @@ helyOS settings
 - MESSAGE_RATE_LIMIT:  maximum burst of number of messages per second that an agent is allowed publish to helyOS. (default = 150)  
 - MESSAGE_UPDATE_LIMIT: maximum burst of number of database updates per second originated from messages publishing. E.g. status update messages. (default = 20)
 - WAIT_AGENT_STATUS_PERIOD:  time in seconds that helyOS waits for an agent to change to the required status before triggering a mission. (default = 20)
-- DB_BATCHING_TIME: time in milliseconds that helyOS collects updates before pushing them to the database. It is used for non-prioritized updates. (default = 1000)
+- DB_BUFFER_TIME: time in milliseconds that helyOS collects updates before pushing them to the database. It is used for non-prioritized updates. (default = 1000)
 
 (Optional settings)
 
+- PREFETCH_COUNT:  number of messages that the RabbitMQ server delivers to the agent at once. (default = 100).
 - AGENT_REGISTRATION_TOKEN:  It is used to authenticate the agents that were not previoulsy registered in helyOS.
 - MOCK_SERVICES: True or False.  If True, the services are mocked. It is used only for automated tests purposes. (default = False)
 - TLS_REJECT_UNAUTHORIZED: True or False.  If True, the TLS connection is rejected if the certificate is not valid. (default = True)
