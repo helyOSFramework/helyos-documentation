@@ -141,8 +141,81 @@ The Dummy Service
 ^^^^^^^^^^^^^^^^^
 When a microservice is marked as dummy, helyOS will not send requests to any URL. Instead, helyOS will just copy the mission request data to the result field of the microservice. 
 This is useful in the scenario where the application does not need to perform any calculation in microservices, e.g., if pre-defined assignment or map updates are already 
-stored in the client.  For example, if the dummy service was registered in the assignment domain, the *Client* can directly send the assignment data to the agent. 
+stored in the client application.  For example, if the dummy service was registered in the assignment domain, the *Client* can directly send the assignment data to the agent. 
 If it was registered in the *Map* domain, the request data will be directly used to update the map objects.
+
+
+
+Alternative Configuration with microservice.yml
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+As an alternative to inputting values in the dashboard UI, developers can use a `microservice.yml` file to configure microservices. This approach allows for batch configuration and easier version control of microservice settings. Below is an example content of a `microservice.yml` file:
+
+.. code:: yaml
+
+    version: '2.0'
+
+    services:
+
+        my_path_planner:
+        is_dummy: false
+        domain: "Assignment planner"  # Assignment planner | Map Server | Storage server
+        type: "drive"
+        url: https://my_path_planner:9002/api/
+        enable: true
+        apikey: "CN783V9SygdG0deHgfesdfsaeNuCqwbm"
+        timeout: 300
+        
+        context:
+            map_data: true
+            all_agents_data: false
+            mission_agents_data: true
+            require_map_objects:
+            - obstacle
+            - drivable
+        config: >
+                {"plan-directions": "all_directions",
+                "output_format" :"trajectory"}
+
+        maploader:
+        domain: "Map server"  # Assignment planner | Map server | Storage server
+        type: "map"
+        url: https://my_map_server:9002/api/
+        enable: true
+        apikey: "ABy40lwSsdfafasdBiCbvU2hVEeY7t"
+        timeout: 180
+        
+        context:
+            map_data: true
+            all_agents_data: false
+            mission_agents_data: false
+
+
+
+Explanation of `microservice.yml` Fields
+
+- **version:** Specifies the version of the configuration file format.
+- **services:** A list of services to be registered, each with its own set of configuration parameters.
+
+For each service:
+
+- **is_dummy:** Boolean indicating if the service is a dummy.
+- **domain:** Specifies the domain of the service (Assignment planner, Map Server, Storage server).
+- **type:** The type of functionality the microservice provides.
+- **url:** The complete URL for the microservice, including protocol and port.
+- **enable:** Boolean to enable or disable the microservice.
+- **apikey:** API key for authenticating the service.
+- **timeout:** The maximum amount of time (in seconds) the system will wait for a response.
+- **context:** Contextual data that the microservice might need:
+
+    - **map_data:** Boolean indicating if map data is required.
+    - **all_agents_data:** Boolean indicating if data for all agents is required.
+    - **mission_agents_data:** Boolean indicating if data for mission-specific agents is required.
+    - **require_map_objects:** A list of required map object types (e.g., obstacle, drivable). Default is __all__.
+
+- **config:** A JSON object with fixed parameters to be passed to the microservice.
+
+Using the `microservice.yml` file allows for streamlined and consistent setup of microservices, facilitating easier management and deployment.
 
 
 .. _mission-recipes-view:
