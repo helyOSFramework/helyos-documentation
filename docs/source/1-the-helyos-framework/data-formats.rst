@@ -129,8 +129,8 @@ However, if you wish the sensor values to also be visualized on the helyOS admin
 
 Mission request data format
 ---------------------------
-To create a mission, the software developers must insert a row in the table of work processes. They can use the GraphQL language or the helyOS JavaScript SDK.  
-Here again, helyOS does not specify the content of **data**.
+To create a mission, the software developers must insert a row into work processes table. They can use the GraphQL language or the helyOS JavaScript SDK.  
+Here again, helyOS does not specify the content of **data**; this should be provided according to the designed mission recipe.
 
 .. code::
 
@@ -143,14 +143,14 @@ Here again, helyOS does not specify the content of **data**.
         data: {…}          
     }
 
-The field data will be forwarded to all microservices linked to the mission given by the *workProcessTypeName*.
+The field **data** will be forwarded to all microservices linked to the mission recipe given by the value of *workProcessTypeName*.
 
 **The follow fields are processed by helyOS core:**
 
 - **yardId:** Database id of yard.
-- **workProcessTypeName:** One of the mission names previously defined in the helyOS dashboard (Define Missions view).
+- **workProcessTypeName:** One of the mission recipe names previously defined in the helyOS dashboard (Define Missions view).
 - **status:**  'draft' | "cancelling" |  'canceled' | 'dispatched' | "preparing resources" | "calculating" | "executing" |  "succeeded".  When creating, you can only define as 'draft' or "dispatched".  When updating, you can only set the status as "cancelling" or "dispatched".
-- **agentIds:** A list containing only the database ids of the agents taking part in the mission. This agents will be reserved by helyOS core.
+- **agentIds  or  agentUuids:** A list containing only the database ids (uuids) of the agents taking part in the mission. This agents will be reserved by helyOS core.
 - **waitFreeAgent (optional):** Default is true. It defines if helyOS must wait all agents listed in **agentIds** to report the status free before triggering the mission calculations.  Set false if you don't need to reserve the agent and you can pile up assignments in the agent queue. Notice that this may produce assignments calculated with outdated yard data. 
 
 

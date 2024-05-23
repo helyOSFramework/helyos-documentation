@@ -8,7 +8,7 @@ The `WorkProcess` has the following fields:
 
 - `id`: The unique identifier of the mission.
 - `status`: The status of the mission: `draft`, `dispatched`, `executing`, `succeeded`, `failed`, `canceling`, `canceled`.
-- `workProcessTypeName`: The type of the mission. The type of the mission is defined by the `WorkProcessType`.
+- `workProcessTypeName`: The type of the mission or the name of the mission recipe. The type of the mission is defined by the `WorkProcessType`.
 - `data`: The data of the mission. The data of the mission is a JSON object that contains the parameters of the mission.
 - `agentIds`: The agents that are assigned to the mission. The agents are defined by the `Agent` type.
 
@@ -47,3 +47,34 @@ Reguarding the state flow of the `WorkProcess`, the client application should no
     In principle, you can cancel an individual assignment by changing is status to `canceling`, this will result in a cancel instant action sent directly to the agent. However, this may 
     lead to an inconsitent state of the mission, therefore is recommended to cancel the mission, as described above, rather than cancel individual
     mission assignments.
+
+
+
+Working with Mission Queues
+==============================
+
+
+External applications connected exclusively to the helyOS core are inherently limited in their ability to directly modify ongoing missions.
+They can either make adjustments to an ongoing mission via `instant actions` (:ref:`instant_actions`) or  cancel the mission entirely.
+
+Substantial modifications to an ungoing mission must be considered in advance when defining the microservices orchestration or programming actors that react to the mission within the autonomous domain.
+
+However, for developers seeking flexibility in modifying complex missions from external applications, an alternative approach involves redefining these missions as a series of simpler missions and organizing them within a `MissionQueue`
+
+For example, consider the scenario where a robot must to capture images of an object at a designated location. Such  mission could be  redefined as three simple missions: "go_to_location", "take_picture", "return_to_base".
+
+The developer would create the MissionQueue "Get Picture", create the three `WorkProcess` entities with the status `draft`, and associate them to the "Get Picture" queue, via the `queue_id` property.
+
+
+.. figure:: ./img/mission-queue.png
+    :width: 700
+    :align: center
+
+
+
+
+
+
+As soon the MissionQueue status is changed from **stopped** to **run**, the helyOS core will dispatch the missions in the specified order. 
+This allows the application user the ability to pause, resume, add, or substitute subsequent missions in the queue,  providing greater autonomy over mission execution.
+
