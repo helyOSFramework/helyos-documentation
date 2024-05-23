@@ -11,6 +11,8 @@ Exchange, Routing-keys and Queues in RabbitMQ
 
 Thanks to the RabbitMQ routing features, any RabbitMQ client subscribing to the topic exchange *agent_ul* can get the messages filtered by  routing-keys. 
 
+Routing-keys
+^^^^^^^^^^^^^
 The agents will address their messages to the following routing-keys: 
 
 - **agent.{uuid}.checkin** : used only for check-in data.
@@ -28,6 +30,13 @@ The agents will receive messages from the following routing-keys:
 
 Routing-keys can be converted to topics for MQTT clients. Check the table below.
 
+.. figure:: ./img/rabbitmq_topics_explained_2.png
+    :align: center
+    :width: 800
+
+
+Messages
+^^^^^^^^^
 
 All messages exchanged between helyOS and the agents include the following common fields:
 
@@ -37,11 +46,46 @@ All messages exchanged between helyOS and the agents include the following commo
 
 The additional field **metadata** is present for some messages.
 
-The **body** field will be specific for each message type. The easiest way to communicate to helyOS is to use the agent SDK connector methods: *publish_general_updates*, *publish_states* and *publish_sensors*.
 
-.. figure:: ./img/rabbitmq_topics_explained_2.png
-    :align: center
-    :width: 800
+type
+""""
+
+    The values for message types defined by the helyOS framework are:
+
+    **From Agent:**
+
+    - **mission_request:** Messages where an agent requests a mission from helyOS.
+    - **agent_state:** Messages reporting the agent's state.
+    - **agent_sensors:** Messages reporting sensor data from the agent.
+    - **agent_update:** Messages related to updates of agent properties.
+    - **checkin:** Messages used only for check-in data.
+
+    **To Agent:**
+
+    - **assignment_execution:** Messages to execute an assignment.
+    - **assignment_cancel:** Instant action messages to cancel an assignment.
+    - **reserve_for_mission:** Instant action messages to reserve the agent for a mission.
+    - **release_from_mission:** Instant action messages to release the agent from a mission.
+    - **custom_action:** Instant action messages to perform a custom action.
+
+    Each type of message should be published to the specific routing_key.
+
+
+
+uuid
+""""
+    The identifier of the agent to which the message pertains. 
+    This value should match the RabbitMQ username for the agent. 
+    An exception is when one agent is authorized to publish data on behalf of another agent in a leader-follower configuration. 
+    For example, a tractor might publish positional data for the trailer it is pulling.
+
+
+
+body
+""""
+
+    The **body** field will be specific for each message type. The easiest way to communicate to helyOS is to use the agent SDK connector methods: *publish_general_updates*, *publish_states* and *publish_sensors*.
+
 
 
 Ref: 
@@ -97,6 +141,26 @@ Here, we bring some examples of connection using Pyhton clients.
     channel.basic_consume('as_queue', auto_ack=True, on_message_callback=as_callback)   
 
     channel.start_consuming()
+
+
+**Parse helyOS messages**
+
+The following code can be used to parse any message from helyOS or the agent SDK:
+
+.. code:: python
+
+    def parse_any_helyos_agent_message(raw_str):
+        # get message string
+        object = json.loads(raw_str)
+        message_str = object['message']
+        message_signature = object['signature'] 
+        # parse message string
+        message = json.loads(message_str)
+        print(f"message type: {message['type']}")
+        print(f"message uuid: {message['uuid']}")
+        print(f"message body: {message['body']}")
+        print(f"message metadata: {message.get('metadata', None)}")
+
 
 
 Tapping into the agent's data stream
