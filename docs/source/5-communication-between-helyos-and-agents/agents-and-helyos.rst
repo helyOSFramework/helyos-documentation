@@ -84,12 +84,7 @@ uuid
 body
 """"
 
-    The **body** field will be specific for each message type. The easiest way to communicate to helyOS is to use the agent SDK connector methods: *publish_general_updates*, *publish_states* and *publish_sensors*.
-
-
-
-Ref: 
-`Documentation <https://fraunhoferivi.github.io/helyOS-agent-sdk/build/html/apidocs/helyos_agent_sdk.connector.html#module-helyos_agent_sdk.connector>`_ and `Examples <https://fraunhoferivi.github.io/helyOS-agent-sdk/build/html/examples/index.html>`_
+    The **body** field will be specific for each message type. The easiest way to communicate to helyOS is to use the agent SDK connector methods: *publish_general_updates*, *publish_states* and *publish_sensors*. Ref: `Documentation <https://fraunhoferivi.github.io/helyOS-agent-sdk/build/html/apidocs/helyos_agent_sdk.connector.html#module-helyos_agent_sdk.connector>`_ and `Examples <https://fraunhoferivi.github.io/helyOS-agent-sdk/build/html/examples/index.html>`_
 
 |
 
@@ -382,7 +377,77 @@ The `helyOS-agent-sdk` has many other methods to send and receive data from hely
 Check the documentation at https://fraunhoferivi.github.io/helyOS-agent-sdk/build/html/index.html.
 
 
-|
+
+Agent and Assignment Status Update 
+----------------------------------
+
+The agent plays a crucial role in the helyOS framework by reporting, besides its own status, the status of the assignment it is currently handling. 
+This is done via the routing key, *agent.{uuid}.state*. 
+
+Agent Status 
+^^^^^^^^^^^^
+
+- **not_automatable**: Indicates that the agent cannot be automated. This status might apply when it is in manual mode or when certain conditions prevent automation.
+- **free**: The agent is available and not currently engaged in any assignment. 
+- **ready**: The agent is reserved for a mission and waiting for an assignment. 
+- **busy**: The agent is currently handling an assignment.
+
+
+Assignment Status
+^^^^^^^^^^^^^^^^^
+
+- **active**: The assignment has been received by the agent and is being prepared to start. This status indicates that the assignment will begin execution soon.
+
+- **executing**: The assignment is actively running. The agent is performing the specified task.
+
+- **succeeded**: The assignment has successfully completed its execution. The agent achieved the desired outcome.
+
+- **canceled**: The assignment was canceled by a request from the helyOS core.
+
+- **aborted**: The assignment was canceled by a request from the agent itself. This might occur if the agent encounters unexpected issues during execution.
+
+- **failed**: The assignment failed to complete successfully. This status indicates that the desired outcome was not achieved.
+
+Internally, the helyOS core will change the status from **succeeded** to **completed**, meaning the finalization of the assignment within the mission context.
+
+
+
+.. code-block:: typescript
+    :caption: Message for status update.
+
+    StatusUpdateMessage {
+        type: "agent_state";
+
+        uuid: string;
+
+        body: {  
+                status: AGENT_STATUS; 
+                assignment: { id: number;
+                              status: ASSIGNMENT_STATUS;
+                              result: any;  // any data resulted from the assignment.
+                              };
+                resources: { operation_types_available: string[],  // inform applications about agent capbilities 
+                             workprocess_id: number;
+                             reserved: boolean;
+                            }
+        }
+
+    }
+
+
+
+
+Best Practices for Managing Status
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+**Publish on Change**: Whenever the agent's status or the assignment's status changes (e.g., from "free" to "busy" or from "active" to "executing"), it should immediately published.
+
+
+**Periodically Publish Agent Status**: Regularly publishing agent status updates at moderate frequencies (every one or two seconds) serves as a heartbeat signal. It informs the helyOS core that the agent is online and functioning well. This is especially important if the agent's sensors are not being periodically published in the `visualization` channel.
+
+
+**Avoid Frequent Assignment Status Updates**: Unlike agent status, assignment status should be published only when it changes. Unnecessary publishing can create additional overhead in the orchestration of missions.
+
 
 Data Flow between helyOS and Agents
 -----------------------------------
@@ -404,8 +469,36 @@ its status and to perform the assignments.
 
 helyOS Reserves Agent for Mission
 ---------------------------------
-Before processing a mission request, helyOS core will reserve the required agent(s). This is done via the routing key, *agent.{uiid}.instantActions*. helyOS requests the agent to be in **"ready"** status (status="ready" and reserved=True). During the assignment, the agent's status changes to **"busy"**.  After the assignment is complete, the agent updates its status from **"busy"** to **"ready"**. At this point, helyOS may release the agent, depending on the presence of any further assignments in that mission.
+Before processing a mission request, helyOS core will reserve the required agent(s). This is done via the routing key, *agent.{uuid}.instantActions*. helyOS requests the agent to be in **"ready"** status (status="ready" and reserved=True). During the assignment, the agent's status changes to **"busy"**.  After the assignment is complete, the agent updates its status from **"busy"** to **"ready"**. At this point, helyOS may release the agent, depending on the presence of any further assignments in that mission.
 The release message is also delivered via instant actions.
+
+
+.. code-block:: typescript
+    :caption: Message for reserve and release agent for a mission.
+
+    ReserveMessage {
+        type: "reserve_for_mission";
+
+        uuid: string;
+
+        body: { workprocess_id: number;  // mission id for which the agent is being reserved.
+                reserved: true;
+                operation_types_available: string[]; // (optional) inform requested capbilities 
+        }
+
+    }
+
+    ReleaseMessage {
+        type: "release_from_mission";
+
+        uuid: string;
+
+        body: { workprocess_id: number;
+                reserved: false;
+        }
+    }
+
+
 
 The agent reservation is important because: 
 
@@ -429,7 +522,7 @@ helyOS Sends Assignment to Agent
 As earlier mentioned, the assignments usually originated from the microservices. 
 That is, the microservices translate the requested mission in assignments: :ref:`helyos_assignment`.
 The microservices  return the assignments to helyOS core, and  helyOS  distributes them to the agents.
-This is done via the routing key *agent.{uiid}.assignments*. 
+This is done via the routing key *agent.{uuid}.assignments*. 
 
 If the option `Acknowledge reservation` is checked, helyOS will send an assignment to the agent **only if the agent status is "ready"**.   
 
@@ -468,3 +561,32 @@ In addition to client apps, agents can also request missions from helyOS core. T
 
 
 
+.. code-block:: typescript
+    :caption: Message for request a new mission.
+
+    MissionRequestMessage {
+        type: "mission_request";
+
+        uuid: string;
+
+        body: { agent_uuids: string []; // List of agents required for the mission.
+                yard_id: int,
+                work_process_type_name: string,  // Defined the mission to trigger.
+                data: any,   // the input data for the requested missiong
+                status: 'dispatched' // immediately triggering of the mission.
+        }
+
+    }
+
+
+
+
+- **agent_uuids:** : List of unique identifiers for agents required for the mission. The agent can also request a mission to itself.
+
+- **yard_id**: Identifier for the yard where the mission is to be executed.
+
+- **work_process_type_name**: Defines the type of mission to trigger. Values are specific to mission recipes.
+
+- **data**: The input data required for executing the requested mission.
+
+- **status: 'dispatched'**: Status of the mission, set to 'dispatched' to trigger the mission immediately.
