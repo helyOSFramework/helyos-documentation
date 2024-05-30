@@ -426,7 +426,7 @@ Internally, the helyOS core will change the status from **succeeded** to **compl
                               status: ASSIGNMENT_STATUS;
                               result: any;  // any data resulted from the assignment.
                               };
-                resources: { operation_types_available: string[],  // inform applications about agent capbilities 
+                resources: { operation_types_available?: string[],  // inform applications about agent capbilities 
                              workprocess_id: number;
                              reserved: boolean;
                             }
@@ -449,21 +449,6 @@ Best Practices for Managing Status
 **Avoid Frequent Assignment Status Updates**: Unlike agent status, assignment status should be published only when it changes. Unnecessary publishing can create additional overhead in the orchestration of missions.
 
 
-Data Flow between helyOS and Agents
------------------------------------
-
-Only if the agent's uuid is registered in the helyOS database, the agent can exchange messages with helyOS to report
-its status and to perform the assignments. 
-
-.. figure:: ./img/agent_receving_mission.png
-    :align: center
-    :width: 800
-
-    The process of agents receiving mission assignments
-
-
-| Note that before receiving any assignment, the agent must be reserved for the assignment mission. That is, the agent changes the status from "free" to "ready" (i.e., ready for the mission) upon helyOS *Reserve* request. Once the agent finishes the assignment, the agent will not set its status from "busy" to "free", but to "ready". This is because helyOS may sent him a second assignment belonging to the same mission. For this reason, the agent must wait the "Release" signal from helyOS to set itself "free". 
-
 
 
 
@@ -483,7 +468,7 @@ The release message is also delivered via instant actions.
 
         body: { workprocess_id: number;  // mission id for which the agent is being reserved.
                 reserved: true;
-                operation_types_available: string[]; // (optional) inform requested capbilities 
+                operation_types_available?: string[]; // (optional) inform requested capbilities 
         }
 
     }
@@ -548,12 +533,101 @@ If the option `Acknowledge reservation` is checked, helyOS will send an assignme
 
     
 
-An easy-to-implement security mechanism is to check the identity of the assignment sender. This is an embedded feature of RabbitMQ. For example, if you want your agent to only execute assignments from helyOS core, you can filter assignments originated from the RabbitMQ account "helyos_core".
+An easy-to-implement security mechanism is to check the identity of the assignment sender. This is an embedded feature of RabbitMQ when using AMPQ protocol. For example, if you want your agent to only execute assignments from helyOS core, you can filter assignments originated from the RabbitMQ account "helyos_core".
+
+
+Canceling a Running Mission
+---------------------------
+
+
+Client applications can request the cancellation of a mission, as described in the section :ref:`handling_missions`. A mission may include one or several assignments distributed to multiple agents. When a mission is canceled, helyOS must inform each agent to cancel its respective assignments. This is accomplished by publishing an `assignment_cancel` instant action on *agent.{uuid}.instantActions*.
+
+
+.. code-block:: typescript
+    :caption: Message from helyOS core to the agent for canceling the assignment.
+
+    CancelMessage {
+        type: "assignment_cancel";
+
+        uuid: string;
+
+        body: AnyDataFormat; // currently not used.
+
+        metadata: {  
+                    id: number;             // assignment id.
+                    workprocess_id: number; // mission id.
+                    yard_id: number;
+                    status: string;
+                    context?: { dependencies: PreviousAssignments[] }
+        }
+    }
+
+
+Agent Responsibilities For Canceling
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Upon receiving the cancellation message, the agent must:
+
+1. Initiate internal procedures to interrupt the assignment.
+2. Publish the assignment status as **"canceled"**.
+3. Update its status to "ready" or "free" based on the application's requirements.
+
+This ensures a smooth and coordinated cancellation process across all agents involved in the mission.
+
+
+
+Data Flow between helyOS and Agents
+-----------------------------------
+
+Only if the agent's uuid is registered in the helyOS database, the agent can exchange messages with helyOS to report
+its status and to perform the assignments. 
+
+.. figure:: ./img/agent_receving_mission.png
+    :align: center
+    :width: 800
+
+    The process of agents receiving mission assignments
+
+
+| Note that before receiving any assignment, the agent must be reserved for the assignment mission. That is, the agent changes the status from "free" to "ready" (i.e., ready for the mission) upon helyOS *Reserve* request. Once the agent finishes the assignment, the agent will not set its status from "busy" to "free", but to "ready". This is because helyOS may sent him a second assignment belonging to the same mission. For this reason, the agent must wait the "Release" signal from helyOS to set itself "free". 
+
+
+Agent Reports Position and/or Sensor Data
+-----------------------------------------
+
+
+Agents can publish their positions and sensor data. The format for sensor data is freely defined by the developer. 
+If you do not have a sensor format, you can use the helyOS-native sensor format: :ref:`helyos_sensor_format`.
+
+The published information is routed to *agent.{uuid}.visualization*,  placed in a low-priority queue, and may expire under high load conditions. 
+The typical publish rate for sensors is recommended to be 10 Hz. A reasonable upper limit would be 100 Hz, but depending on the number of agents and available computational resources, this value can reach up to 1000 Hz.
+You can adjust the upper message rate using the environment variable MESSAGE_RATE_LIMIT. Agents that surpass this limit are automatically disconnected from RabbitMQ.
+
+helyOS core stores any incoming sensor data in an in-memory database. This in-memory data is broadcast via WebSocket to client applications at a fixed rate of 10 Hz.
+Additionally, the in-memory data is periodically pushed to the helyOS persistent database, Postgres, during each DB_BUFFER_TIME period.
+
+If the developer needs to ensure that each individual measurement directly updates the Postgres, they must publish using the routing key *agent.{uuid}.update*, but this should be done at low frequencies.
+
+.. code-block:: typescript
+    :caption: Message to request a new mission.
+
+    MissionRequestMessage {
+        type: "agent_sensors";
+
+        uuid: string;
+
+        body: {
+            pose:    { x: number; y: number; z: number; orientations: number[] };
+            sensors: AnyDataFormat;
+        }
+    }
+
+
 
 Agent Requests a Mission 
 ------------------------
 
-In addition to client apps, agents can also request missions from helyOS core. This feature is useful for situations such as the following:
+In addition to client apps, agents can also request missions from helyOS core. This is done via the routing key *agent.{uuid}.mission_req*.  This feature is useful for situations such as the following:
 
 - A smart camera identify a new obstacle and requests a mission to update helyOS map by sending the position of a new obstacle.
 - A tractor requests a mission to ask assistance of another agent for executing a task.
