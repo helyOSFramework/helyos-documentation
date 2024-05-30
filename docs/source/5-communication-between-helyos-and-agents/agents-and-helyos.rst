@@ -35,6 +35,10 @@ Routing-keys can be converted to topics for MQTT clients. Check the table below.
     :width: 800
 
 
+Note that only if the agent's uuid is registered in the helyOS database, the agent can exchange messages with helyOS core to report
+its status and to perform the assignments. 
+
+
 Messages
 ^^^^^^^^^
 
@@ -450,6 +454,7 @@ Best Practices for Managing Status
 
 
 
+|
 
 
 helyOS Reserves Agent for Mission
@@ -501,6 +506,22 @@ Instead, they should either fail the mission if they become suddenly unavailable
 to be executed later.
 For those scenarios, the developer must uncheck the option `Acknowledge reservation` on the `Register Agent` tab in the dashboard.
 
+
+
+Typical Data Flow with Agent reservation 
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. figure:: ./img/agent_receving_mission.png
+    :align: center
+    :width: 800
+
+    Agents receiving mission assignments
+
+
+| Note that before receiving any assignment, the agent must be reserved for the assignment mission. That is, the agent changes the status from "free" to "ready" (i.e., ready for the mission) upon helyOS *Reserve* request. Once the agent finishes the assignment, the agent will not set its status from "busy" to "free", but to "ready". This is because helyOS may sent him a second assignment belonging to the same mission. For this reason, the agent must wait the "Release" signal from helyOS to set itself "free". 
+
+
+|
 
 helyOS Sends Assignment to Agent
 --------------------------------
@@ -563,8 +584,6 @@ Client applications can request the cancellation of a mission, as described in t
     }
 
 
-Agent Responsibilities For Canceling
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Upon receiving the cancellation message, the agent must:
 
@@ -575,21 +594,34 @@ Upon receiving the cancellation message, the agent must:
 This ensures a smooth and coordinated cancellation process across all agents involved in the mission.
 
 
+Typical Data Flows with Mission Cancelation 
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Data Flow between helyOS and Agents
------------------------------------
 
-Only if the agent's uuid is registered in the helyOS database, the agent can exchange messages with helyOS to report
-its status and to perform the assignments. 
-
-.. figure:: ./img/agent_receving_mission.png
+.. figure:: ./img/Diagram-SuccessfulMission.png
     :align: center
     :width: 800
 
-    The process of agents receiving mission assignments
+    Successful Mission.
 
 
-| Note that before receiving any assignment, the agent must be reserved for the assignment mission. That is, the agent changes the status from "free" to "ready" (i.e., ready for the mission) upon helyOS *Reserve* request. Once the agent finishes the assignment, the agent will not set its status from "busy" to "free", but to "ready". This is because helyOS may sent him a second assignment belonging to the same mission. For this reason, the agent must wait the "Release" signal from helyOS to set itself "free". 
+.. figure:: ./img/Diagram-Canceled-Mission-A.png
+    :align: center
+    :width: 800
+
+
+    Mission canceled before the assignment being dispatched.
+
+
+.. figure:: ./img/Diagram-Canceled-Mission-B.png
+    :align: center
+    :width: 800
+
+    Mission canceled after the assignment being dispatched.
+
+
+
+|
 
 
 Agent Reports Position and/or Sensor Data
@@ -622,6 +654,9 @@ If the developer needs to ensure that each individual measurement directly updat
         }
     }
 
+
+
+|
 
 
 Agent Requests a Mission 
