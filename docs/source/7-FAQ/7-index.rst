@@ -80,7 +80,7 @@ If you have no idea, just use the helyOS-native format and you will be safe:
 
 I want to use an online server for path calculation (or map information) which has its own API. How can I integrate with helyOS?
 --------------------------------------------------------------------------------------------------------------------------------
-You need to make a small service to convert from the original API to the helyOS API and register it as a microservice in the dashboard.
+You need to build a proxy-service, which is a small service to convert from the original API to the helyOS API and register it as a microservice in the dashboard.
 Since the helyOS API is extremely simple, this can be done with a few lines of code.
 
 
@@ -89,7 +89,7 @@ What is the difference between helyOS and Automation App?
 
 **helyOS** is a software framework used to facilitate the creation of control tower software for different applications like e.g., agriculture, logistics centers and harbors.
 
-| **Automation App** is proprietary software application used as a frontend tool to prototype projects in logistic centers. Automation App uses helyOS as backend.
+| **Automation App** is proprietary software application belonging to Fraunhofer IVI, used as a frontend tool to prototype projects in logistic centers. The Automation App uses the helyOS core as backend.
 
 
 
