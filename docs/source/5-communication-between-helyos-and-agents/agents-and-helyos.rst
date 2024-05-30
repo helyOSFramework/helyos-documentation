@@ -609,9 +609,9 @@ Additionally, the in-memory data is periodically pushed to the helyOS persistent
 If the developer needs to ensure that each individual measurement directly updates the Postgres, they must publish using the routing key *agent.{uuid}.update*, but this should be done at low frequencies.
 
 .. code-block:: typescript
-    :caption: Message to request a new mission.
+    :caption: Message to publish position and sensor values.
 
-    MissionRequestMessage {
+    SensorUpdateMessage {
         type: "agent_sensors";
 
         uuid: string;

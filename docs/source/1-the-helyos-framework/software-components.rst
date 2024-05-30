@@ -12,7 +12,7 @@ The helyOS core is a nodeJS software that works as a ready-to-use backend for co
 4. Orchestration of mission assignments that are sent to the vehicles via rabbitMQ. It is important to stress that the “orchestration” includes the conditional and ordered dispatch of assignments to each agent according to its reported state.
 5. Orchestration of microservices used to calculate the assignment data.
 
-Source Code: available upon request.
+Source Code: https://github.com/helyOSFramework/helyos_core
 
 
 helyOS JavaScript SDK
@@ -27,9 +27,9 @@ Web apps interact with helyOS via HTTP protocol using the GraphQL language. To a
 5. get mission and assignment data
 6. all setting commands available in the helyOS dashboard (requires admin permission)
 
-Source Code: https://github.com/FraunhoferIVI/helyOS-javascript-sdk
+Source Code: https://github.com/helyOSFramework/helyos-javascript-sdk
 
-Documentation: https://fraunhoferivi.github.io/helyOS-javascript-sdk/
+Documentation: https://helyosframework.github.io/helyos-javascript-sdk/
 
 helyOS Agent SDK
 ----------------
@@ -44,9 +44,9 @@ The helyOS-agent-sdk includes the following functionalities:
 4. receive assignments and instant action commands from helyOS core
 5. communicate with other agents and devices in the same RabbitMQ network
 
-Source Code: https://github.com/FraunhoferIVI/helyOS-agent-sdk
+Source Code: https://github.com/helyOSFramework/helyos_agent_sdk
 
-Documentation: https://fraunhoferivi.github.io/helyOS-agent-sdk/build/html/index.html
+Documentation: https://helyosframework.github.io/helyos_agent_sdk/build/html/index.html
 
 .. figure:: ./img/helyos-framework.png
     :align: center
