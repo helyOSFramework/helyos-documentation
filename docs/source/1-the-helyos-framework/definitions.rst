@@ -21,7 +21,7 @@ The main component of the system, enclosing the business logics and the orches
 
 Assignment
 ----------
-A task or group of tasks delivered to the agent by the helyOS core via rabbitMQ. The agent must complete the entire assignment without the support of the helyOS core. The agent must report the assignment status as "running", "completed", "aborted" or "failed". helyOS core can of course send a cancel request to the agent for terminating the assignment. 
+A task or group of tasks delivered to the agent by the helyOS core via rabbitMQ. The agent must complete the entire assignment without the support of the helyOS core. The agent must report the assignment status as "active", "executing", "canceled", "successful", "aborted" or "failed". helyOS core can send a cancel request to the agent for terminating the assignment. 
 
 Mission
 -------

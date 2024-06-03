@@ -35,6 +35,10 @@ Routing-keys can be converted to topics for MQTT clients. Check the table below.
     :width: 800
 
 
+Note that only if the agent's uuid is registered in the helyOS database, the agent can exchange messages with helyOS core to report
+its status and to perform the assignments. 
+
+
 Messages
 ^^^^^^^^^
 
@@ -84,12 +88,7 @@ uuid
 body
 """"
 
-    The **body** field will be specific for each message type. The easiest way to communicate to helyOS is to use the agent SDK connector methods: *publish_general_updates*, *publish_states* and *publish_sensors*.
-
-
-
-Ref: 
-`Documentation <https://fraunhoferivi.github.io/helyOS-agent-sdk/build/html/apidocs/helyos_agent_sdk.connector.html#module-helyos_agent_sdk.connector>`_ and `Examples <https://fraunhoferivi.github.io/helyOS-agent-sdk/build/html/examples/index.html>`_
+    The **body** field will be specific for each message type. The easiest way to communicate to helyOS is to use the agent SDK connector methods: *publish_general_updates*, *publish_states* and *publish_sensors*. Ref: `Documentation <https://fraunhoferivi.github.io/helyOS-agent-sdk/build/html/apidocs/helyos_agent_sdk.connector.html#module-helyos_agent_sdk.connector>`_ and `Examples <https://fraunhoferivi.github.io/helyOS-agent-sdk/build/html/examples/index.html>`_
 
 |
 
@@ -382,30 +381,114 @@ The `helyOS-agent-sdk` has many other methods to send and receive data from hely
 Check the documentation at https://fraunhoferivi.github.io/helyOS-agent-sdk/build/html/index.html.
 
 
+
+Agent and Assignment Status Update 
+----------------------------------
+
+The agent plays a crucial role in the helyOS framework by reporting, besides its own status, the status of the assignment it is currently handling. 
+This is done via the routing key, *agent.{uuid}.state*. 
+
+Agent Status 
+^^^^^^^^^^^^
+
+- **not_automatable**: Indicates that the agent cannot be automated. This status might apply when it is in manual mode or when certain conditions prevent automation.
+- **free**: The agent is available and not currently engaged in any assignment. 
+- **ready**: The agent is reserved for a mission and waiting for an assignment. 
+- **busy**: The agent is currently handling an assignment.
+
+
+Assignment Status
+^^^^^^^^^^^^^^^^^
+
+- **active**: The assignment has been received by the agent and is being prepared to start. This status indicates that the assignment will begin execution soon.
+
+- **executing**: The assignment is actively running. The agent is performing the specified task.
+
+- **succeeded**: The assignment has successfully completed its execution. The agent achieved the desired outcome.
+
+- **canceled**: The assignment was canceled by a request from the helyOS core.
+
+- **aborted**: The assignment was canceled by a request from the agent itself. This might occur if the agent encounters unexpected issues during execution.
+
+- **failed**: The assignment failed to complete successfully. This status indicates that the desired outcome was not achieved.
+
+Internally, the helyOS core will change the status from **succeeded** to **completed**, meaning the finalization of the assignment within the mission context.
+
+
+
+.. code-block:: typescript
+    :caption: Message for status update.
+
+    StatusUpdateMessage {
+        type: "agent_state";
+
+        uuid: string;
+
+        body: {  
+                status: AGENT_STATUS; 
+                assignment: { id: number;
+                              status: ASSIGNMENT_STATUS;
+                              result: any;  // any data resulted from the assignment.
+                              };
+                resources: { operation_types_available?: string[],  // inform applications about agent capbilities 
+                             workprocess_id: number;
+                             reserved: boolean;
+                            }
+        }
+
+    }
+
+
+
+
+Best Practices for Managing Status
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+**Publish on Change**: Whenever the agent's status or the assignment's status changes (e.g., from "free" to "busy" or from "active" to "executing"), it should immediately published.
+
+
+**Periodically Publish Agent Status**: Regularly publishing agent status updates at moderate frequencies (every one or two seconds) serves as a heartbeat signal. It informs the helyOS core that the agent is online and functioning well. This is especially important if the agent's sensors are not being periodically published in the `visualization` channel.
+
+
+**Avoid Frequent Assignment Status Updates**: Unlike agent status, assignment status should be published only when it changes. Unnecessary publishing can create additional overhead in the orchestration of missions.
+
+
+
 |
-
-Data Flow between helyOS and Agents
------------------------------------
-
-Only if the agent's uuid is registered in the helyOS database, the agent can exchange messages with helyOS to report
-its status and to perform the assignments. 
-
-.. figure:: ./img/agent_receving_mission.png
-    :align: center
-    :width: 800
-
-    The process of agents receiving mission assignments
-
-
-| Note that before receiving any assignment, the agent must be reserved for the assignment mission. That is, the agent changes the status from "free" to "ready" (i.e., ready for the mission) upon helyOS *Reserve* request. Once the agent finishes the assignment, the agent will not set its status from "busy" to "free", but to "ready". This is because helyOS may sent him a second assignment belonging to the same mission. For this reason, the agent must wait the "Release" signal from helyOS to set itself "free". 
-
-
 
 
 helyOS Reserves Agent for Mission
 ---------------------------------
-Before processing a mission request, helyOS core will reserve the required agent(s). This is done via the routing key, *agent.{uiid}.instantActions*. helyOS requests the agent to be in **"ready"** status (status="ready" and reserved=True). During the assignment, the agent's status changes to **"busy"**.  After the assignment is complete, the agent updates its status from **"busy"** to **"ready"**. At this point, helyOS may release the agent, depending on the presence of any further assignments in that mission.
+Before processing a mission request, helyOS core will reserve the required agent(s). This is done via the routing key, *agent.{uuid}.instantActions*. helyOS requests the agent to be in **"ready"** status (status="ready" and reserved=True). During the assignment, the agent's status changes to **"busy"**.  After the assignment is complete, the agent updates its status from **"busy"** to **"ready"**. At this point, helyOS may release the agent, depending on the presence of any further assignments in that mission.
 The release message is also delivered via instant actions.
+
+
+.. code-block:: typescript
+    :caption: Message for reserve and release agent for a mission.
+
+    ReserveMessage {
+        type: "reserve_for_mission";
+
+        uuid: string;
+
+        body: { workprocess_id: number;  // mission id for which the agent is being reserved.
+                reserved: true;
+                operation_types_available?: string[]; // (optional) inform requested capbilities 
+        }
+
+    }
+
+    ReleaseMessage {
+        type: "release_from_mission";
+
+        uuid: string;
+
+        body: { workprocess_id: number;
+                reserved: false;
+        }
+    }
+
+
 
 The agent reservation is important because: 
 
@@ -424,12 +507,28 @@ to be executed later.
 For those scenarios, the developer must uncheck the option `Acknowledge reservation` on the `Register Agent` tab in the dashboard.
 
 
+
+Typical Data Flow with Agent reservation 
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. figure:: ./img/agent_receving_mission.png
+    :align: center
+    :width: 800
+
+    Agents receiving mission assignments
+
+
+| Note that before receiving any assignment, the agent must be reserved for the assignment mission. That is, the agent changes the status from "free" to "ready" (i.e., ready for the mission) upon helyOS *Reserve* request. Once the agent finishes the assignment, the agent will not set its status from "busy" to "free", but to "ready". This is because helyOS may sent him a second assignment belonging to the same mission. For this reason, the agent must wait the "Release" signal from helyOS to set itself "free". 
+
+
+|
+
 helyOS Sends Assignment to Agent
 --------------------------------
 As earlier mentioned, the assignments usually originated from the microservices. 
 That is, the microservices translate the requested mission in assignments: :ref:`helyos_assignment`.
 The microservices  return the assignments to helyOS core, and  helyOS  distributes them to the agents.
-This is done via the routing key *agent.{uiid}.assignments*. 
+This is done via the routing key *agent.{uuid}.assignments*. 
 
 If the option `Acknowledge reservation` is checked, helyOS will send an assignment to the agent **only if the agent status is "ready"**.   
 
@@ -455,12 +554,115 @@ If the option `Acknowledge reservation` is checked, helyOS will send an assignme
 
     
 
-An easy-to-implement security mechanism is to check the identity of the assignment sender. This is an embedded feature of RabbitMQ. For example, if you want your agent to only execute assignments from helyOS core, you can filter assignments originated from the RabbitMQ account "helyos_core".
+An easy-to-implement security mechanism is to check the identity of the assignment sender. This is an embedded feature of RabbitMQ when using AMPQ protocol. For example, if you want your agent to only execute assignments from helyOS core, you can filter assignments originated from the RabbitMQ account "helyos_core".
+
+
+Canceling a Running Mission
+---------------------------
+
+
+Client applications can request the cancellation of a mission, as described in the section :ref:`handling_missions`. A mission may include one or several assignments distributed to multiple agents. When a mission is canceled, helyOS must inform each agent to cancel its respective assignments. This is accomplished by publishing an `assignment_cancel` instant action on *agent.{uuid}.instantActions*.
+
+
+.. code-block:: typescript
+    :caption: Message from helyOS core to the agent for canceling the assignment.
+
+    CancelMessage {
+        type: "assignment_cancel";
+
+        uuid: string;
+
+        body: AnyDataFormat; // currently not used.
+
+        metadata: {  
+                    id: number;             // assignment id.
+                    workprocess_id: number; // mission id.
+                    yard_id: number;
+                    status: string;
+                    context?: { dependencies: PreviousAssignments[] }
+        }
+    }
+
+
+
+Upon receiving the cancellation message, the agent must:
+
+1. Initiate internal procedures to interrupt the assignment.
+2. Publish the assignment status as **"canceled"**.
+3. Update its status to "ready" or "free" based on the application's requirements.
+
+This ensures a smooth and coordinated cancellation process across all agents involved in the mission.
+
+
+Typical Data Flows with Mission Cancelation 
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+.. figure:: ./img/Diagram-SuccessfulMission.png
+    :align: center
+    :width: 800
+
+    Successful Mission.
+
+
+.. figure:: ./img/Diagram-Canceled-Mission-A.png
+    :align: center
+    :width: 800
+
+
+    Mission canceled before the assignment being dispatched.
+
+
+.. figure:: ./img/Diagram-Canceled-Mission-B.png
+    :align: center
+    :width: 800
+
+    Mission canceled after the assignment being dispatched.
+
+
+
+|
+
+
+Agent Reports Position and/or Sensor Data
+-----------------------------------------
+
+
+Agents can publish their positions and sensor data. The format for sensor data is freely defined by the developer. 
+If you do not have a sensor format, you can use the helyOS-native sensor format: :ref:`helyos_sensor_format`.
+
+The published information is routed to *agent.{uuid}.visualization*,  placed in a low-priority queue, and may expire under high load conditions. 
+The typical publish rate for sensors is recommended to be 10 Hz. A reasonable upper limit would be 100 Hz, but depending on the number of agents and available computational resources, this value can reach up to 1000 Hz.
+You can adjust the upper message rate using the environment variable MESSAGE_RATE_LIMIT. Agents that surpass this limit are automatically disconnected from RabbitMQ.
+
+helyOS core stores any incoming sensor data in an in-memory database. This in-memory data is broadcast via WebSocket to client applications at a fixed rate of 10 Hz.
+Additionally, the in-memory data is periodically pushed to the helyOS persistent database, Postgres, during each DB_BUFFER_TIME period.
+
+If the developer needs to ensure that each individual measurement directly updates the Postgres, they must publish using the routing key *agent.{uuid}.update*, but this should be done at low frequencies.
+
+.. code-block:: typescript
+    :caption: Message to publish position and sensor values.
+
+    SensorUpdateMessage {
+        type: "agent_sensors";
+
+        uuid: string;
+
+        body: {
+            pose:    { x: number; y: number; z: number; orientations: number[] };
+            sensors: AnyDataFormat;
+        }
+    }
+
+
+
+|
+
 
 Agent Requests a Mission 
 ------------------------
 
-In addition to client apps, agents can also request missions from helyOS core. This feature is useful for situations such as the following:
+In addition to client apps, agents can also request missions from helyOS core. This is done via the routing key *agent.{uuid}.mission_req*.  This feature is useful for situations such as the following:
 
 - A smart camera identify a new obstacle and requests a mission to update helyOS map by sending the position of a new obstacle.
 - A tractor requests a mission to ask assistance of another agent for executing a task.
@@ -468,3 +670,32 @@ In addition to client apps, agents can also request missions from helyOS core. T
 
 
 
+.. code-block:: typescript
+    :caption: Message for request a new mission.
+
+    MissionRequestMessage {
+        type: "mission_request";
+
+        uuid: string;
+
+        body: { agent_uuids: string []; // List of agents required for the mission.
+                yard_id: int,
+                work_process_type_name: string,  // Defined the mission to trigger.
+                data: any,   // the input data for the requested missiong
+                status: 'dispatched' // immediately triggering of the mission.
+        }
+
+    }
+
+
+
+
+- **agent_uuids:** : List of unique identifiers for agents required for the mission. The agent can also request a mission to itself.
+
+- **yard_id**: Identifier for the yard where the mission is to be executed.
+
+- **work_process_type_name**: Defines the type of mission to trigger. Values are specific to mission recipes.
+
+- **data**: The input data required for executing the requested mission.
+
+- **status: 'dispatched'**: Status of the mission, set to 'dispatched' to trigger the mission immediately.
