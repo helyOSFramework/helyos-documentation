@@ -73,7 +73,7 @@ Subscribe to the Position and Sensors Data Stream
 -------------------------------------------------
 
 .. code-block:: python
-    :caption:  Retrieve agents' sensors.
+    :caption:  Retrieve agents sensors.
 
     # !pip install "python-socketio[client]"
 
@@ -111,7 +111,7 @@ Subscribe to the agent status update event via WebSocket
 --------------------------------------------------------
 
 .. code-block:: python
-    :caption:  Retrieve agents' sensors.
+    :caption:  Retrieve agents status.
     # !pip install "python-socketio[client]"
     import socketio
 
