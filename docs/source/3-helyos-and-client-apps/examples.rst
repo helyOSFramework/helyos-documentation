@@ -76,7 +76,6 @@ Subscribe to the Position and Sensors Data Stream
     :caption:  Retrieve agents sensors.
 
     # !pip install "python-socketio[client]"
-
     import socketio
 
     hostname = "https://helyos-server.com" # or wss://helyos-sever.com
@@ -112,6 +111,7 @@ Subscribe to the agent status update event via WebSocket
 
 .. code-block:: python
     :caption:  Retrieve agents status.
+
     # !pip install "python-socketio[client]"
     import socketio
 
