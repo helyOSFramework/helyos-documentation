@@ -508,7 +508,7 @@ For those scenarios, the developer must uncheck the option `Acknowledge reservat
 
 
 
-Typical Data Flow with Agent reservation 
+Typical Data Flow with Agent Reservation 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. figure:: ./img/agent_receving_mission.png
