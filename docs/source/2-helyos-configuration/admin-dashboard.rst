@@ -158,41 +158,41 @@ As an alternative to inputting values in the dashboard UI, developers can use a 
     services:
 
         my_path_planner:
-        is_dummy: false
-        domain: "Assignment planner"  # Assignment planner | Map Server | Storage server
-        type: "drive"
-        url: https://my_path_planner:9002/api/
-        enable: true
-        apikey: "CN783V9SygdG0deHgfesdfsaeNuCqwbm"
-        timeout: 300
-        
-        context:
-            map_data: true
-            all_agents_data: false
-            mission_agents_data: true
-            require_map_objects:
-            - obstacle
-            - drivable
-        config: >
-                {"plan-directions": "all_directions",
-                "output_format" :"trajectory"}
+            is_dummy: false
+            domain: "Assignment planner"  # Assignment planner | Map Server | Storage server
+            type: "drive"
+            url: https://my_path_planner:9002/api/
+            enable: true
+            apikey: "CN783V9SygdG0deHgfesdfsaeNuCqwbm"
+            timeout: 300
+            
+            context:
+                map_data: true
+                all_agents_data: false
+                mission_agents_data: true
+                require_map_objects:
+                - obstacle
+                - drivable
+            config: >
+                    {"plan-directions": "all_directions",
+                    "output_format" :"trajectory"}
 
         maploader:
-        domain: "Map server"  # Assignment planner | Map server | Storage server
-        type: "map"
-        url: https://my_map_server:9002/api/
-        enable: true
-        apikey: "ABy40lwSsdfafasdBiCbvU2hVEeY7t"
-        timeout: 180
-        
-        context:
-            map_data: true
-            all_agents_data: false
-            mission_agents_data: false
+            domain: "Map server"  # Assignment planner | Map server | Storage server
+            type: "map"
+            url: https://my_map_server:9002/api/
+            enable: true
+            apikey: "ABy40lwSsdfafasdBiCbvU2hVEeY7t"
+            timeout: 180
+            
+            context:
+                map_data: true
+                all_agents_data: false
+                mission_agents_data: false
 
 
 
-Explanation of `microservice.yml` Fields
+Explanation of `microservice.yml` fields
 
 - **version:** Specifies the version of the configuration file format.
 - **services:** A list of services to be registered, each with its own set of configuration parameters.
@@ -241,17 +241,86 @@ Each row corresponds to a step in the mission process and is used to orchestrate
 
 - **Step Dependences:**  Define dependencies on other steps (microservices).  For instance, if step “C” depends on step “A” and “B”, the microservice associated with step “C” will be executed only after the responses of steps “A” and “B” are received. The responses of steps “A” and “B” will be automatically appended in the context of the step “C” request.
 
+
+
+Alternative Configuration with missions.yml
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+As an alternative to inputting values in the dashboard UI, developers can use a `missions.yml` file to configure the recipes. This approach allows for batch configuration and easier version control of mission settings. Below is an example content of a `missions.yml` file:
+
+.. code:: yaml
+
+    version: '2.0'
+
+    missions:
+
+        drive_twice:
+            maxagents: 1
+            description: "drive from a to b, and from b to c"
+            on_assignment_failure: "FAIL_MISSION" # FAIL_MISSION | RELEASE_FAILED | CONTINUE_MISSION
+            settings: >
+                    {"operation": "standard",
+                    "agent" :"trucks"}
+            
+            recipe:
+                steps:
+                    - step: "A"
+                    service_type: "drive"
+                    request_order: 1
+                    apply_result: true
+                    override_config: "{}"
+
+                    - step: "B"
+                    service_type: "drive"
+                    request_order: 2
+                    apply_result: true
+                    override_config: "{}"
+                    dependencies: '["A"]'
+
+                    - step: "C"
+                    service_type: "map"
+                    request_order: 3
+                    apply_result: true
+                    override_config: "{}"
+                    dependencies: '["A"]'
+
+
+Explanation of `missions.yml` fields
+
+- **version:** Specifies the version of the configuration file format.
+- **missions:** A list of services to be registered, each with its own set of configuration parameters.
+
+For each mission recipe:
+
+- **maxagents:** Maximum number of agents that can be assigned to the mission.
+- **description:** A brief description of the mission.
+- **on_assignment_failure:** Specifies the action to take if an assignment fails. Options are:
+  - ``FAIL_MISSION``
+  - ``RELEASE_FAILED``
+  - ``CONTINUE_MISSION``
+- **settings:** JSON-formatted string containing additional settings for the mission.
+- **recipe:** Contains the steps required to complete the mission.
+  - **steps:** A list of steps in the mission. Each step includes:
+
+    - **step:** The identifier for the step.
+    - **service_type:** The type of service required for the step (e.g., "drive", "map").
+    - **request_order:** The order in which to request the step.
+    - **apply_result:** Boolean indicating whether to apply the result of the step.
+    - **override_config:** JSON-formatted string for overriding default configuration.
+    - **dependencies:** List of steps that must be completed before this step.
+
+
+
 .. figure:: ./img/example1.png
     :align: center
     :width: 600
 
-    **Example 1.** No dependencies between steps: All the microservices respond asynchronously.
+**Example 1.** No dependencies between steps: All the microservices respond asynchronously.
 
 .. figure:: ./img/example2.png
     :align: center
     :width: 600
 
-    **Example 2.** Dependencies between steps: Microservices are called and respond sequentially.
-
+**Example 2.** Dependencies between steps: Microservices are called and respond sequentially.
 
 

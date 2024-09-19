@@ -130,26 +130,27 @@ Service Response: from Microservices to helyOS
       HelyOSMicroserviceResponse {
           request_id?: string;  // generated job id. Can be used to poll results from long running jobs.
 
-          status: "failed" | "pending" | "successful";  .
+          status: "failed" | "pending" | "ready";
 
           results: AssignmentPlan[] | MapUpdate | any;
 
           dispatch_order?: number[][]; 
 
           orchestration?: {
-                    nex_step_request: [step: string]: any; // input data to be sent to the next microservice(s).
+                    nex_step_request?: [step: string]: any; // input data to be sent to the next microservice(s).
+                    allow_dependent_steps?: string[]; 
                     }
       }
 
   - **request_id:** Service generated job id.
 
-  - **status** can be "failed" | "pending" | "successful". While "pending" is returned, helyOS will poll the microservice for results using the request_id.
+  - **status** can be "failed" | "pending" | "ready". While "pending" is returned, helyOS will poll the microservice for results using the request_id.
 
   - **results** can be an array of assignments or a map update, depending on the domain where the microservice was registered. If the microservice is perform intermediate calculations, the results can be any other data structure.
   
   - **dispatch_order** is an array of the element indexes of the results array. In case of Assignment planners, the order of the indexes defines the order in which the corresponding assignment in the results array will be dispatched to the agent.
 
-  - **orchestration (optional)**  is a field designed to transmit data to the subsequent step in the mission. It is utilized when the input data for the following microservice (the field **request**) needs to be different from the initial mission input data (the field **workProcess.data**).
+  - **orchestration (optional)**  is a field designed to modify the default behaviour of the microservice orchestration. `nex_step_request` is used to transmit data to the subsequent step in the mission. It is utilized when the input data for the following microservice (the field **request**) needs to be different from the initial mission input data (the field **workProcess.data**). `allow_dependent_steps` is used to select which subsequent orchestation step, and consequentely microservice, must be executed. This is useful to implement deviations on the microservices orchestration flow.
   
   
 
@@ -214,7 +215,7 @@ The microservices of the next step in the mission will receive the following inp
 
 Assignment Creation
 ^^^^^^^^^^^^^^^^^^^
-Assignments are created by microservices in the *Assignment Planner* domain. A microservice can create one or more assignments per mission, and can define the dispatch order to agents.
+Assignments are created by microservices in the *Assignment Planner* domain. A microservice can create one or more assignments per mission, and can define the dispatch order to agents. The symbol (?) indicates the field is optional.
 
 
   .. code-block:: typescript
@@ -224,14 +225,15 @@ Assignments are created by microservices in the *Assignment Planner* domain. A m
 
           request_id?: string;  // generated job id. Can be used to poll results from long running jobs.
 
-          status: "failed" | "pending" | "successful";  .
+          status: "failed" | "pending" | "ready";  .
 
           results: AssignmentPlan[]; // array of assignments.
 
           dispatch_order?: number[][]; // order in which the assignments will be dispatched to the agents.
 
           orchestration?: {
-                    nex_step_request: [step: string]: any; 
+                    nex_step_request?: [step: string]: any; 
+                    allow_dependent_steps?: string[]; 
                     }
       }
 
@@ -240,6 +242,7 @@ Assignments are created by microservices in the *Assignment Planner* domain. A m
           agent_id?: number; // id of the agent that will receive the assignment.
           agent_uuid?: string; // UUID of the agent that will receive the assignment.
           assignment: any; // assignment data, usually defined by the agent vendor.
+          on_assignment_failure?: 'RELEASE_FAILED' | 'CONTINUE_MISSION' | 'FAIL_MISSION';
       }
 
 
@@ -252,7 +255,7 @@ This microservice response data structure, as defined before, will contains the 
 
 In the AssignmentPlan, the **assignment** field is a user-defined JSON field that contains the data necessary for the agent to execute the assignment.
 The agent that will receive the assignment must be identified either by the **agent_id** or by the **agent_uuid** field. The **agent_id** is the database id of the agent, and the **agent_uuid** is the UUID of the agent. 
-
+The **on_assignment_failure** is an optional field that can be used to override the default behaviour of assignment failure, which is pre-defined by the mission recipe.
 
 .. note:: 
   | Note: You cannot send more than one mission at once to a same agent. However, you can SEND SEVERAL ASSIGNMENTS to a same agent! For this, add the assignments into the **results** array with the same **agent_id**.
