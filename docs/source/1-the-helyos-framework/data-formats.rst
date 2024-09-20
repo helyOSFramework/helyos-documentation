@@ -47,7 +47,7 @@ In the helyOS framework, the assignment is originated from a microservice [*]. T
 
         request_id?: string;  // auto-generated job id. 
 
-        status: "failed" | "pending" | "successful";  
+        status: "failed" | "pending" | "ready";  
 
         results: AssignmentPlan[]; // array of assignments.
 

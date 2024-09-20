@@ -431,7 +431,7 @@ Internally, the helyOS core will change the status from **succeeded** to **compl
                               result: any;  // any data resulted from the assignment.
                               };
                 resources: { operation_types_available?: string[],  // inform applications about agent capbilities 
-                             workprocess_id: number;
+                             work_process_id: number;
                              reserved: boolean;
                             }
         }
@@ -471,7 +471,7 @@ The release message is also delivered via instant actions.
 
         uuid: string;
 
-        body: { workprocess_id: number;  // mission id for which the agent is being reserved.
+        body: { work_process_id: number;  // mission id for which the agent is being reserved.
                 reserved: true;
                 operation_types_available?: string[]; // (optional) inform requested capbilities 
         }
@@ -483,7 +483,7 @@ The release message is also delivered via instant actions.
 
         uuid: string;
 
-        body: { workprocess_id: number;
+        body: { work_process_id: number;
                 reserved: false;
         }
     }
@@ -544,7 +544,7 @@ If the option `Acknowledge reservation` is checked, helyOS will send an assignme
 
         metadata: {  
                     id: number,             // assignment id.
-                    workprocess_id: number, // mission id.
+                    work_process_id: number, // mission id.
                     yard_id: number,
                     status: string,
                     context?: { dependencies: PreviousAssignments[]}
@@ -576,7 +576,7 @@ Client applications can request the cancellation of a mission, as described in t
 
         metadata: {  
                     id: number;             // assignment id.
-                    workprocess_id: number; // mission id.
+                    work_process_id: number; // mission id.
                     yard_id: number;
                     status: string;
                     context?: { dependencies: PreviousAssignments[] }

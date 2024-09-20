@@ -75,14 +75,16 @@ Models Description
       HelyOSMicroserviceResponse {
           request_id?: string;  // generated job id. Can be used to poll results from long running jobs.
 
-          status: "failed" | "pending" | "successful";  .
+          status: "failed" | "pending" | "ready";  .
 
           results: AssignmentPlan[] | MapUpdate | any;
 
           dispatch_order?: number[][]; 
 
           orchestration?: {
-                    nex_step_request: [step: string]: any; // input data to be sent to the next microservice(s).
+                    nex_step_request?: [step: string]: any; // input data to be sent to the next microservice(s).
+                    allow_dependent_steps?: string[]; 
+
                     }
       }
 
