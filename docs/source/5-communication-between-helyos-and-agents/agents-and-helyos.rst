@@ -38,7 +38,7 @@ Routing-keys can be converted to topics for MQTT clients. Check the table below.
     :width: 800
 
 .. list-table:: Feature Comparison
-   :widths: 15 15 20 50
+   :widths: 15 20 20 45
    :header-rows: 1
 
    * - **Feature**
