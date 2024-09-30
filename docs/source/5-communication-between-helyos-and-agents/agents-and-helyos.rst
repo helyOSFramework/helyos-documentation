@@ -24,8 +24,11 @@ The agents will address their messages to the following routing-keys:
 
 The agents will receive messages from the following routing-keys: 
 
-- **agent.{uuid}.assignment** or **agent.{uuid}.order**: receive assignments.
+- **agent.{uuid}.assignment**: receive assignments.
 - **agent.{uuid}.instantActions** : receive instant action commands from helyOS core or any other RabbitMQ client.
+
+The additional routing-key is used to quickly updates map objects:
+- **yard.{uuid}.visualization** : { 'map_object': {..} } or {'map_objects': [{..},{,,}] }
 
 
 Routing-keys can be converted to topics for MQTT clients. Check the table below.
@@ -63,6 +66,7 @@ type
     - **agent_sensors:** Messages reporting sensor data from the agent.
     - **agent_update:** Messages related to updates of agent properties.
     - **checkin:** Messages used only for check-in data.
+    - **data_request**: Message used to request data from helyOS core database.
 
     **To Agent:**
 
@@ -699,3 +703,82 @@ In addition to client apps, agents can also request missions from helyOS core. T
 - **data**: The input data required for executing the requested mission.
 
 - **status: 'dispatched'**: Status of the mission, set to 'dispatched' to trigger the mission immediately.
+
+
+Assistant Agents and Data Retrieval
+-----------------------------------
+
+In the helyOS framework, **assistant** agents are specialized agents that support other actuator agents in completing their assignments. 
+They are capable to perform every function that a normal agent can, but unlike actuator agents, which typically represent physical robots or vehicles, assistant agents are usually algorithms or services that facilitate data exchange between the yard, agents, and the helyOS core.
+
+Assistant agents play a crucial role in the helyOS ecosystem by providing computational intelligence, data processing, and decision-making capabilities that enhance the overall functionality of the system. 
+They can perform tasks such as data analysis, optimization, scheduling, and predictive maintenance.
+
+
+Data Retrieval from the helyOS Database
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Agents can access data from the yard by interacting with the helyOS database. 
+
+One practical method for data retrieval is through direct requests via RabbitMQ using a routing key formatted as "agent.{uuid}.database_req". These requests require the specification of a response queue and follow the remote procedure call (RPC) approach by using the AMQP property `reply_to`.
+
+The message data structure for queries is:
+
+.. code-block:: typescript
+    :caption: Message for request data from helyOS core
+
+    MissionRequestMessage {
+        type: "data_request";
+
+        uuid: string;
+
+        body: { query: string // query name,
+                conditions:  dictionary // conditions to be matched
+        }
+
+    }
+
+
+The message data for mutation is:
+
+.. code-block:: typescript
+    :caption: Message for request data from helyOS core
+
+    MissionRequestMessage {
+        type: "data_request";
+
+        uuid: string;
+
+        body: { mutation: string // name of the mutation.
+                data:  dictionary // fields and values to be written.
+        }
+
+    }
+
+
+
+Using the helyOS Agent SDK's `DatabaseConnector`, data retrieval is straightforward. The `DatabaseConnector` class handles the necessary RPCs using the AMQP protocol, connecting to a helyOS client and making requests to the helyOS database.
+
+Below are the possible data requests that can be made using the `DatabaseConnector`:
+
+- `allAgents`: Retrieve all agents, with optional conditions to filter the results.
+- `allLeaders`: Obtain the leader connections for a specific agent, identified by UUID.
+- `allFollowers`: Get the follower connections for a specific agent, identified by UUID.
+- `allYards`: Fetch all yards, with optional conditions to filter the results.
+- `allExecutingMissions`: Select all missions that are currently in an 'executing' state.
+- `allAssignmentsByMissionId`: Retrieve all assignments associated with a specific mission ID.
+- `allMapObjects`: Access all map objects, with optional conditions to filter the results.
+
+Additionally, the `DatabaseConnector` can handle mutations to the database, such as:
+
+- `createMapObjects`: Create many new map objects with specified data.
+- `updateMapObjects`: Update many map objects with specific data.
+- `deleteMapObjects`: Delete map objects based on provided conditions.
+- `deleteMapObjectByIds`: Remove multiple map objects by their IDs.
+
+These requests and mutations are processed by helyos core, which interacts with various services to perform the desired database operations and ensure real-time data consistency through the in-memory database service.
+
+Assistant agents may utilize these data retrieval and mutation capabilities to assist actuator agents in navigating the yard, executing missions, and managing the operational environment effectively.
+
+
+Ref: https://helyosframework.github.io/helyos_agent_sdk/build/html/apidocs/helyos_agent_sdk.database_connector.html#helyos_agent_sdk.database_connector.DatabaseConnector
