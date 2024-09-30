@@ -6,7 +6,7 @@ table,
 table.list-table,
 table.docutils {
     width: 690px !important; /* Ensure the table fits within its container */
-    max-width: 690px !important;; /* Prevent the table from exceeding container width */
+    max-width: 690px !important; /* Prevent the table from exceeding container width */
     table-layout: auto; /* Allow flexible column widths */
     word-wrap: break-word; /* Wrap text within cells */
     overflow-wrap: break-word; /* Handle long words in cells */
