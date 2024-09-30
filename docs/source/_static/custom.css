@@ -1,5 +1,22 @@
 /* custom.css */
 
+
+/* Ensure the table does not cause horizontal scrolling */
+table.docutils.list-table {
+    table-layout: fixed; /* Enforces fixed layout for the table */
+    width: 100%; /* Make sure the table fits within its container */
+    word-wrap: break-word; /* Allows text to wrap within table cells */
+    white-space: normal; /* Ensures normal spacing and wrapping */
+}
+
+/* Define cell behavior for wrapping */
+table.docutils.list-table td, 
+table.docutils.list-table th {
+    word-wrap: break-word; /* Break long words in table cells */
+    white-space: normal; /* Use normal spacing within cells */
+    overflow-wrap: break-word; /* Additional property for text wrapping */
+}
+
 /* Target the Sphinx list-table class and alternate row colors */
 table.docutils.list-table tr:nth-child(odd) {
     background-color: #f9f9f9; /* Light grey for odd rows */
@@ -20,18 +37,3 @@ table.docutils.list-table th, table.docutils.list-table td {
     padding: 12px 15px;
 }
 
-/* Ensure the table does not cause horizontal scrolling */
-table.docutils.list-table {
-    table-layout: fixed; /* Enforces fixed layout for the table */
-    width: 100%; /* Make sure the table fits within its container */
-    word-wrap: break-word; /* Allows text to wrap within table cells */
-    white-space: normal; /* Ensures normal spacing and wrapping */
-}
-
-/* Define cell behavior for wrapping */
-table.docutils.list-table td, 
-table.docutils.list-table th {
-    word-wrap: break-word; /* Break long words in table cells */
-    white-space: normal; /* Use normal spacing within cells */
-    overflow-wrap: break-word; /* Additional property for text wrapping */
-}

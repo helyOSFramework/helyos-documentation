@@ -38,12 +38,12 @@ Routing-keys can be converted to topics for MQTT clients. Check the table below.
     :width: 800
 
 .. list-table:: Feature Comparison
-   :widths: 20 20 20 40
+   :widths: 15 15 20 50
    :header-rows: 1
 
    * - **Feature**
-     - **AMQP**
-     - **MQTT**
+     - **AMQP (routing-key)**
+     - **MQTT(topic-name)**
      - **Remarks**
    * - Check-in
      - agent.{uuid}.checkin
