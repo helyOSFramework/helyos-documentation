@@ -20,7 +20,7 @@ The agents will address their messages to the following routing-keys:
 - **agent.{uuid}.visualization** : messages reporting the positioning and sensor data. 
 - **agent.{uuid}.state** : messages reporting the assignment status and agent state.
 - **agent.{uuid}.mission_req** : messages to request missions from helyOS.
-- **agent.{uuid}.factsheet** : (included for compatibility with VDA5050) messages to report geometry.
+- **agent.{uuid}.factsheet** : messages to report any custom data about the agent.
 
 The agents will receive messages from the following routing-keys: 
 
@@ -28,14 +28,12 @@ The agents will receive messages from the following routing-keys:
 - **agent.{uuid}.instantActions** : receive instant action commands from helyOS core or any other RabbitMQ client.
 
 The additional routing-key is used to quickly updates map objects:
-- **yard.{uuid}.visualization** : { 'map_object': {..} } or {'map_objects': [{..},{,,}] }
+
+- **yard.{uuid}.visualization** : Use the message `body``:  { 'map_object': {..} } for one object, or {'map_objects': [{..},{,,}] } for many objects.
 
 
 Routing-keys can be converted to topics for MQTT clients. Check the table below.
 
-.. figure:: ./img/rabbitmq_topics_explained_2.png
-    :align: center
-    :width: 800
 
 
 .. list-table:: Feature Comparison
