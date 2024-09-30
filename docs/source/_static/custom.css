@@ -1,41 +1,34 @@
 /* custom.css */
 
 
-/* Ensure the table does not cause horizontal scrolling */
-table.docutils.list-table {
-    table-layout: fixed; /* Enforces fixed layout for the table */
-    width: 100%; /* Make sure the table fits within its container */
-    word-wrap: break-word; /* Allows text to wrap within table cells */
-    white-space: normal; /* Ensures normal spacing and wrapping */
+/* Target all tables, list-tables, and docutils tables to enforce width */
+table,
+table.list-table,
+table.docutils {
+    width: 100%; /* Ensure the table fits within its container */
+    max-width: 100%; /* Prevent the table from exceeding container width */
+    table-layout: auto; /* Allow flexible column widths */
+    word-wrap: break-word; /* Wrap text within cells */
+    overflow-wrap: break-word; /* Handle long words in cells */
+    border-collapse: collapse; /* Collapse borders for clean look */
 }
 
-/* Set specific widths for table columns (adjust values as needed) */
-table.docutils.list-table th:nth-child(1),
-table.docutils.list-table td:nth-child(1) {
-    width: 15%; /* Set first column width */
+/* Wrap text within table header cells */
+table th,
+table.list-table th,
+table.docutils th {
+    white-space: normal; /* Allow wrapping in headers */
+    overflow-wrap: break-word;
+    word-wrap: break-word;
 }
 
-table.docutils.list-table th:nth-child(2),
-table.docutils.list-table td:nth-child(2) {
-    width: 15%; /* Set second column width */
-}
-
-table.docutils.list-table th:nth-child(3),
-table.docutils.list-table td:nth-child(3) {
-    width: 15%; /* Set third column width */
-}
-
-table.docutils.list-table th:nth-child(4),
-table.docutils.list-table td:nth-child(4) {
-    width: 55%; /* Set fourth column width */
-}
-
-/* Define cell behavior for wrapping */
-table.docutils.list-table td, 
-table.docutils.list-table th {
-    word-wrap: break-word; /* Break long words in table cells */
-    white-space: normal; /* Use normal spacing within cells */
-    overflow-wrap: break-word; /* Additional property for text wrapping */
+/* Wrap text within table body cells */
+table td,
+table.list-table td,
+table.docutils td {
+    white-space: normal; /* Allow wrapping in cells */
+    overflow-wrap: break-word;
+    word-wrap: break-word;
 }
 
 /* Target the Sphinx list-table class and alternate row colors */
