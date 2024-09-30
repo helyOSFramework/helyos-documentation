@@ -1,0 +1,59 @@
+/* custom.css */
+
+
+/* Target all tables, list-tables, and docutils tables to enforce width */
+table,
+table.list-table,
+table.docutils {
+    width: 100%; /* Ensure the table fits within its container */
+    max-width: 100%; /* Prevent the table from exceeding container width */
+    table-layout: auto; /* Allow flexible column widths */
+    word-wrap: break-word; /* Wrap text within cells */
+    overflow-wrap: break-word; /* Handle long words in cells */
+    border-collapse: collapse; /* Collapse borders for clean look */
+}
+
+/* Wrap text within table header cells */
+table th,
+table.list-table th,
+table.docutils th {
+    white-space: normal; /* Allow wrapping in headers */
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+}
+
+/* Wrap text within table body cells */
+table td,
+table.list-table td,
+table.docutils td {
+    white-space: normal; /* Allow wrapping in cells */
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+}
+
+/* https://github.com/readthedocs/sphinx_rtd_theme/issues/1505#issuecomment-2258832864*/
+
+.wy-table-responsive table td, .wy-table-responsive table th {
+    white-space: normal;
+}
+
+/* Target the Sphinx list-table class and alternate row colors */
+table.docutils.list-table tr:nth-child(odd) {
+    background-color: #f9f9f9; /* Light grey for odd rows */
+}
+
+table.docutils.list-table tr:nth-child(even) {
+    background-color: #ffffff; /* White for even rows */
+}
+
+/* Ensure headers have a different background */
+table.docutils.list-table th {
+    background-color: #4CAF50; /* Header background color */
+    color: white; /* Header text color */
+}
+
+/* Optional: Add padding to cells for better spacing */
+table.docutils.list-table th, table.docutils.list-table td {
+    padding: 12px 5px;
+}
+

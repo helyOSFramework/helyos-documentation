@@ -20,7 +20,7 @@ The agents will address their messages to the following routing-keys:
 - **agent.{uuid}.visualization** : messages reporting the positioning and sensor data. 
 - **agent.{uuid}.state** : messages reporting the assignment status and agent state.
 - **agent.{uuid}.mission_req** : messages to request missions from helyOS.
-- **agent.{uuid}.factsheet** : (included for compatibility with VDA5050) messages to report geometry.
+- **agent.{uuid}.factsheet** : messages to report any custom data about the agent.
 
 The agents will receive messages from the following routing-keys: 
 
@@ -28,14 +28,70 @@ The agents will receive messages from the following routing-keys:
 - **agent.{uuid}.instantActions** : receive instant action commands from helyOS core or any other RabbitMQ client.
 
 The additional routing-key is used to quickly updates map objects:
-- **yard.{uuid}.visualization** : { 'map_object': {..} } or {'map_objects': [{..},{,,}] }
+
+- **yard.{uuid}.visualization** : Use the message `body``:  { 'map_object': {..} } for one object, or {'map_objects': [{..},{,,}] } for many objects.
 
 
 Routing-keys can be converted to topics for MQTT clients. Check the table below.
 
-.. figure:: ./img/rabbitmq_topics_explained_2.png
-    :align: center
-    :width: 800
+
+
+.. list-table:: Feature Comparison
+   :widths: 15 22 18 45
+   :header-rows: 1
+
+   * - **Feature**
+     - **AMQP(routing-key)**
+     - **MQTT(topic-name)**
+     - **Remarks**
+   * - Check-in
+     - agent.{uuid}.checkin
+     - agent/{uuid}/checkin
+     - The agent receives the yard map data and error logs.
+       - AMQP: Can be executed as anonymous and used to create RabbitMQ accounts on the fly. The response is received following the RPC pattern.
+       - MQTT: The agent RabbitMQ account must exist. The response is received at a custom topic.
+   * - Check-out
+     - agent.{uuid}.checkout
+     - agent/{uuid}/checkout
+     - The agent receives error logs.
+       - AMQP: The agent RabbitMQ account must exist. The response is received following the RPC pattern.
+       - MQTT: The agent RabbitMQ account must exist. The response is received at a custom topic.
+   * - Instant actions
+     - agent.{uuid}.instantActions
+     - agent/{uuid}/instantActions
+     - Agent receives requests for actions from helyOS core, other agents or external applications.
+       - AMQP: Publishers are automatically validated upon publication.
+       - MQTT: Publishers must be validated at receiver side.
+   * - Assignments
+     - agent.{uuid}.assignment
+     - agent/{uuid}/assignment
+     - Agent receives assignments from helyOS core.
+       - AMQP: Publishes are automatically validated upon publication.
+       - MQTT: Publishers must be validated at receiver side.
+   * - Agent state
+     - agent.{uuid}.state
+     - agent/{uuid}/state
+     - The publication should occur immediately upon the status change and subsequently at regular intervals ranging from 0.2 to 1 Hz.
+   * - Agent visualization (optional)
+     - agent.{uuid}.visualization
+     - agent/{uuid}/visualization
+     - Advisable up to 10 Hz. helyOS core will store these data in a fixed sampling rate.
+   * - Agent updates (optional)
+     - agent.{uuid}.update
+     - agent/{uuid}/update
+     - Advisable up to 1 Hz.
+   * - Database Requests (optional)
+     - agent.{uuid}.database_req
+     - agent/{uuid}/database_req
+     - This feature is intended for retrieving data that is not being published in RabbitMQ.
+       - AMQP: The response is received following the RPC pattern.
+       - MQTT: Not implemented. The developer must handle the response received at a custom topic.
+   * - Mission Requests (optional)
+     - agent.{uuid}.mission_req
+     - agent/{uuid}/mission_req
+     - For specific scenarios, agent can request a new mission for itself or for other agents.
+       - AMQP: The response is received following the RPC pattern.
+       - MQTT: The response is received at a custom topic.
 
 
 Note that only if the agent's uuid is registered in the helyOS database, the agent can exchange messages with helyOS core to report
