@@ -54,6 +54,6 @@ table.docutils.list-table th {
 
 /* Optional: Add padding to cells for better spacing */
 table.docutils.list-table th, table.docutils.list-table td {
-    padding: 12px 15px;
+    padding: 12px 5px;
 }
 
