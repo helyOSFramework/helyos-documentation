@@ -9,6 +9,27 @@ table.docutils.list-table {
     white-space: normal; /* Ensures normal spacing and wrapping */
 }
 
+/* Set specific widths for table columns (adjust values as needed) */
+table.docutils.list-table th:nth-child(1),
+table.docutils.list-table td:nth-child(1) {
+    width: 15%; /* Set first column width */
+}
+
+table.docutils.list-table th:nth-child(2),
+table.docutils.list-table td:nth-child(2) {
+    width: 15%; /* Set second column width */
+}
+
+table.docutils.list-table th:nth-child(3),
+table.docutils.list-table td:nth-child(3) {
+    width: 15%; /* Set third column width */
+}
+
+table.docutils.list-table th:nth-child(4),
+table.docutils.list-table td:nth-child(4) {
+    width: 55%; /* Set fourth column width */
+}
+
 /* Define cell behavior for wrapping */
 table.docutils.list-table td, 
 table.docutils.list-table th {
