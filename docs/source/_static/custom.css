@@ -1,0 +1,21 @@
+/* custom.css */
+
+/* Target the Sphinx list-table class and alternate row colors */
+table.docutils.list-table tr:nth-child(odd) {
+    background-color: #f9f9f9; /* Light grey for odd rows */
+}
+
+table.docutils.list-table tr:nth-child(even) {
+    background-color: #ffffff; /* White for even rows */
+}
+
+/* Ensure headers have a different background */
+table.docutils.list-table th {
+    background-color: #4CAF50; /* Header background color */
+    color: white; /* Header text color */
+}
+
+/* Optional: Add padding to cells for better spacing */
+table.docutils.list-table th, table.docutils.list-table td {
+    padding: 12px 15px;
+}

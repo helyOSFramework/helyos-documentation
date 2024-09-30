@@ -37,47 +37,62 @@ Routing-keys can be converted to topics for MQTT clients. Check the table below.
     :align: center
     :width: 800
 
-.. table:: Agent Communication Overview
+.. list-table:: Feature Comparison
    :widths: 20 20 20 40
+   :header-rows: 1
 
-   ========  ===========================  ===========================  ==========================================================
-   Feature   AMQP (routing-key)          MQTT (topic)                Remarks                                                            
-   ========  ===========================  ===========================  ==========================================================
-   Check-in  agent.{uuid}.checkin         agent/{uuid}/checkin        The agent receives the yard map data and error logs.        
-             Each agent must be connected to one yard. Agents request helyOS core to be registered into a desired yard. 
-             AMQP: Can be executed as anonymous and used to create RabbitMQ accounts on the fly. The response is received following the RPC pattern.
-             MQTT: The agent RabbitMQ account must exist. The response is received at a custom topic.
-   --------  ---------------------------  ---------------------------  ----------------------------------------------------------
-   Check-out agent.{uuid}.checkout        agent/{uuid}/checkout       The agent receives error logs.                              
-             When agent leaves the yard. Agents request helyOS core to be deregistered from the current yard.
-             AMQP: The agent RabbitMQ account must exist. The response is received following the RPC pattern.
-             MQTT: The agent RabbitMQ account must exist. The response is received at a custom topic.
-   --------  ---------------------------  ---------------------------  ----------------------------------------------------------
-   Instant actions agent.{uuid}.instantActions agent/{uuid}/instantActions AMQP: Publishers are automatically validated upon publication.
-             Agent receives requests for actions from helyOS core, other agents or external applications.
-             MQTT: Publishers must be validated at receiver side.
-   --------  ---------------------------  ---------------------------  ----------------------------------------------------------
-   Assignments  agent.{uuid}.assignment   agent/{uuid}/assignment      AMQP: Publishes are automatically validated upon publication.
-               agent.{uuid}.order         agent/{uuid}/order          MQTT: Publishers must be validated at receiver side.
-   --------  ---------------------------  ---------------------------  ----------------------------------------------------------
-   Agent state agent.{uuid}.state         agent/{uuid}/state          The publication should occur immediately upon the status change and subsequently at regular intervals ranging from 0.2 to 1 Hz.
-             Agent notifies helyOS core about its current state and its assignment status.
-   --------  ---------------------------  ---------------------------  ----------------------------------------------------------
-   Agent visualization (optional) agent.{uuid}.visualization agent/{uuid}/visualization Advisable up to 10 Hz. helyOS core will store these data in a fixed sampling rate.
-             Agent broadcasts position and sensor data.
-   --------  ---------------------------  ---------------------------  ----------------------------------------------------------
-   Agent updates (optional) agent.{uuid}.update agent/{uuid}/update Advisable up to 1 Hz. 
-             Agents publish to save their properties and position in helyOS core.
-   --------  ---------------------------  ---------------------------  ----------------------------------------------------------
-   Database Requests (optional) agent.{uuid}.database_req agent/{uuid}/database_req This feature is intended for retrieving data that is not being published in RabbitMQ.
-             Agent can request data from helyOS database and, for some entities, update data.
-             AMQP: The response is received following the RPC pattern.
-             MQTT: Not implemented. The developer must handle the response received at a custom topic.
-   --------  ---------------------------  ---------------------------  ----------------------------------------------------------
-   Mission Requests (optional) agent.{uuid}.mission_req agent/{uuid}/mission_req For specific scenarios, agent can request a new mission for itself or for other agents.
-             AMQP: The response is received following the RPC pattern.
-             MQTT: The response is received at a custom topic.
-   ========  ===========================  ===========================  ==========================================================
+   * - **Feature**
+     - **AMQP**
+     - **MQTT**
+     - **Remarks**
+   * - Check-in
+     - agent.{uuid}.checkin
+     - agent/{uuid}/checkin
+     - The agent receives the yard map data and error logs.
+       - AMQP: Can be executed as anonymous and used to create RabbitMQ accounts on the fly. The response is received following the RPC pattern.
+       - MQTT: The agent RabbitMQ account must exist. The response is received at a custom topic.
+   * - Check-out
+     - agent.{uuid}.checkout
+     - agent/{uuid}/checkout
+     - The agent receives error logs.
+       - AMQP: The agent RabbitMQ account must exist. The response is received following the RPC pattern.
+       - MQTT: The agent RabbitMQ account must exist. The response is received at a custom topic.
+   * - Instant actions
+     - agent.{uuid}.instantActions
+     - agent/{uuid}/instantActions
+     - Agent receives requests for actions from helyOS core, other agents or external applications.
+       - AMQP: Publishers are automatically validated upon publication.
+       - MQTT: Publishers must be validated at receiver side.
+   * - Assignments
+     - agent.{uuid}.assignment
+     - agent/{uuid}/assignment
+     - Agent receives assignments from helyOS core.
+       - AMQP: Publishes are automatically validated upon publication.
+       - MQTT: Publishers must be validated at receiver side.
+   * - Agent state
+     - agent.{uuid}.state
+     - agent/{uuid}/state
+     - The publication should occur immediately upon the status change and subsequently at regular intervals ranging from 0.2 to 1 Hz.
+   * - Agent visualization (optional)
+     - agent.{uuid}.visualization
+     - agent/{uuid}/visualization
+     - Advisable up to 10 Hz. helyOS core will store these data in a fixed sampling rate.
+   * - Agent updates (optional)
+     - agent.{uuid}.update
+     - agent/{uuid}/update
+     - Advisable up to 1 Hz.
+   * - Database Requests (optional)
+     - agent.{uuid}.database_req
+     - agent/{uuid}/database_req
+     - This feature is intended for retrieving data that is not being published in RabbitMQ.
+       - AMQP: The response is received following the RPC pattern.
+       - MQTT: Not implemented. The developer must handle the response received at a custom topic.
+   * - Mission Requests (optional)
+     - agent.{uuid}.mission_req
+     - agent/{uuid}/mission_req
+     - For specific scenarios, agent can request a new mission for itself or for other agents.
+       - AMQP: The response is received following the RPC pattern.
+       - MQTT: The response is received at a custom topic.
 
 
 Note that only if the agent's uuid is registered in the helyOS database, the agent can exchange messages with helyOS core to report
