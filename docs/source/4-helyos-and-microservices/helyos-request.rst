@@ -118,6 +118,7 @@ Service Requests: from helyOS to Microservices
 The `AgentModel` and `MapObjectsModel` are defined here:
 :ref:`models_description`.
 
+.. _fromMsToHelyOS:
 
 Service Response: from Microservices to helyOS
 ----------------------------------------------

@@ -27,7 +27,7 @@ The agents will receive messages from the following routing-keys:
 - **agent.{uuid}.assignment**: receive assignments.
 - **agent.{uuid}.instantActions** : receive instant action commands from helyOS core or any other RabbitMQ client.
 
-The additional routing-key is used to quickly updates map objects:
+The additional routing-key is used to quickly update map objects:
 
 - **yard.{uuid}.visualization** : Use the message `body``:  { 'map_object': {..} } for one object, or {'map_objects': [{..},{,,}] } for many objects.
 
