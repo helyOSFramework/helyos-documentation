@@ -265,24 +265,27 @@ As an alternative to inputting values in the dashboard UI, developers can use a 
             recipe:
                 steps:
                     - step: "A"
-                    service_type: "drive"
-                    request_order: 1
-                    apply_result: true
-                    override_config: "{}"
+                      service_type: "drive"
+                      request_order: 1
+                      apply_result: true
+                      wait_assignments: true
+                      override_config: "{}"
 
                     - step: "B"
-                    service_type: "drive"
-                    request_order: 2
-                    apply_result: true
-                    override_config: "{}"
-                    dependencies: '["A"]'
+                      service_type: "drive"
+                      request_order: 2
+                      apply_result: true
+                      wait_assignments: true
+                      override_config: "{}"
+                      dependencies: '["A"]'
 
                     - step: "C"
-                    service_type: "map"
-                    request_order: 3
-                    apply_result: true
-                    override_config: "{}"
-                    dependencies: '["A"]'
+                      service_type: "map"
+                      request_order: 3
+                      apply_result: true
+                      wait_assignments: true
+                      override_config: "{}"
+                      dependencies: '["A"]'
 
 
 Explanation of `missions.yml` fields
@@ -306,6 +309,7 @@ For each mission recipe:
     - **service_type:** The type of service required for the step (e.g., "drive", "map").
     - **request_order:** The order in which to request the step.
     - **apply_result:** Boolean indicating whether to apply the result of the step.
+    - **wait_assignments:** Boolean indicating whether the step should start only after the end of the assignments produced by its dependencies.
     - **override_config:** JSON-formatted string for overriding default configuration.
     - **dependencies:** List of steps that must be completed before this step.
 
