@@ -38,9 +38,9 @@ RabbitMQ Connection
 - RBMQ_HOST: hostname for RabbitMQ server.
 - RBMQ_PORT: connecting port for AMQP clients.
 - RBMQ_API_PORT:  configuration port for REST API for RabbitMQ server. It is used to create the RabbitMQ accounts.     
-- RBMQ_SSL= True or False.  If True, the AMQP connection to RabbitMQ server is encrypted using TSL.
-- RBMQ_API_SSL= True or False.  If True, the API connection to RabbitMQ server encrypted (default = RBMQ_SSL ).
-- RBMQ_VHOST= virtual host of RabbitMQ server.
+- RBMQ_SSL: True or False.  If True, the AMQP connection to RabbitMQ server is encrypted using TSL.
+- RBMQ_API_SSL: True or False.  If True, the API connection to RabbitMQ server encrypted (default = RBMQ_SSL ).
+- RBMQ_VHOST: virtual host of RabbitMQ server.
 
 - CREATE_RBMQ_ACCOUNTS: True or False.  helyOS automatically creates the RabbitMQ accounts 
 - RBMQ_ADMIN_USERNAME: RabbitMQ admin username (required if CREATE_RBMQ_ACCOUNTS is True)
@@ -59,7 +59,7 @@ RabbitMQ Connection
 REDIS Connection
 ===================
     REDIS is an im-memory database that is employed only when you scale the helyOS core, either by increase the number of threads or instances. 
-    You can actually use any im-memory database with REDSI-compatible API.
+    You can also use any in-memory database that is compatible with the Redis API
     
 - REDIS_HOST: hostname for REDIS server.
 - REDIS_PORT: connecting port for REDIS clients.
@@ -77,9 +77,10 @@ helyOS Settings
 - WAIT_AGENT_STATUS_PERIOD:  time in seconds that helyOS waits for an agent to change to the required status before triggering a mission. (default = 20)
 - DB_BUFFER_TIME: time in milliseconds that helyOS collects updates before pushing them to the database. It is used for non-prioritized updates. (default = 1000)
 
-(Scaling settigs)
+(Scaling settings)
+
 - NUM_THREADS: Number of threads using node cluster. For any value greater than 1 you need to connect helyOS to a REDIS server. (default = 1)
-- SOCKET_IO_ADAPTER: "cluster" for single instance and multiple threads, "redis" when use multiple instances of helyOS core (default = 'none')
+- SOCKET_IO_ADAPTER: use "cluster" for single instance and multiple threads, or "redis" when running multiple instances of helyOS core (default = 'none')
 
 (Optional settings)
 
