@@ -22,7 +22,7 @@ Imposter Agent via Stolen Credentials
 
 **Target:** helyOS core & Agents
 
-To prevent imposter agents from using stolen credentials, you can activate RabbitMQ's **verify_peer** feature to ensure authenticated and secure communication between agents and the helyOS core. 
+To prevent imposter agents from using stolen credentials, you can activate RabbitMQ's **verify_peer** feature to ensure that the agent identity is authenticated by the RabbitMQ server. 
 
 However, once verify_peer is enabled, certificates must be created for each one of the agent, and the certificate authority file for each agent must be loaded into the RabbitMQ server.
 
@@ -39,7 +39,7 @@ In scenarios where imposter or valid agents might tamper with messages, you can 
 You can configure helyOS core using the Dashboard to check the RSA (SHA-256) signature of incoming messages. 
 The helyOS core can also be used to distribute the agents' RSA public keys.
 
-This method ensures both agent authenticity and message origin indepedent of the protocol,  such that agents cannot produce tampered messages, as verification occurs upon message reception.
+This method ensures both agent identity and message origin indepedent of the protocol,  such that agents cannot produce tampered messages, as verification occurs upon message reception.
 
 Unexpected Messages from Devices
 -------------------------------------------------------
