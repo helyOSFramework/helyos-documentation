@@ -64,4 +64,4 @@ Misuse of AGENT_REGISTRATION_TOKEN in Production
 
 **Target:** helyOS core & Agents
 
-Auto registration of agents is a feature to facilitate the development, it should not be used in production. To prevent the misuse of `AGENT_REGISTRATION_TOKEN` in production environments, please remove the token and delete the RabbitMQ `anonymous` account. Furthermore, we ensure that the RabbitMQ guest account is removed, enhancing overall system security.
+Auto registration of agents is a feature to facilitate the development, it should not be used in production. To prevent the misuse of `AGENT_REGISTRATION_TOKEN` in production environments, please remove the token and delete the RabbitMQ `anonymous` account. Furthermore, ensure that the RabbitMQ guest account is removed.
