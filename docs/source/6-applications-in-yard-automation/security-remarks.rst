@@ -8,14 +8,14 @@ MITM on helyOS Core and Data Exposure
 
 **Target:** External Apps
 
-To mitigate Man-In-The-Middle (MITM) attacks on the helyOS core and prevent data exposure, you should utilize SSL for HTTPS via a server-proxy. This can be done by deploying a load balancer or web server (e.g., nginx).
+To mitigate Man-In-The-Middle (MITM) attacks on the helyOS core and prevent data exposure, you should utilize SSL for HTTPS via a server-proxy. This can be done by deploying a load balancer or web server (e.g., nginx).  The helyOS core server `Certificate Authority` data should be present in the applications.
 
 MITM on RabbitMQ Server and Data Exposure
 -----------------------------------------
 
 **Target:** Agents & External Apps
 
-To protect against MITM attacks on the RabbitMQ server and ensure data security, you should enable SSL for AMQPS/MQTTS. RabbitMQ supports  TLS in AMQP and MQTT protocols.
+To protect against MITM attacks on the RabbitMQ server and ensure data security, you should enable SSL for AMQPS/MQTTS. RabbitMQ supports  TLS in AMQP and MQTT protocols. The RabbitMQ server `Certificate Authority` data should be loaded by the agents.
 
 Imposter Agent via Stolen Credentials
 -------------------------------------
@@ -67,4 +67,4 @@ Misuse of AGENT_REGISTRATION_TOKEN in Production
 
 **Target:** helyOS core & Agents
 
-Auto registration of agents is a feature to facilitate development, it should not be used in production. To prevent the misuse of `AGENT_REGISTRATION_TOKEN` in production environments, please remove the token and delete the RabbitMQ `anonymous` account. Furthermore, ensure that the RabbitMQ guest account is removed.
+Auto registration of agents is a feature to facilitate the development, it should not be used in production. To prevent the misuse of `AGENT_REGISTRATION_TOKEN` in production environments, please remove the token and delete the RabbitMQ `anonymous` account. Furthermore, ensure that the RabbitMQ guest account is removed.
