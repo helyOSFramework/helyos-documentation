@@ -35,9 +35,11 @@ Imposter Agent via Stolen Credentials + Message Tampering
 
 **Target:** helyOS core & Agents
 
-In scenarios where imposter or valid agents might tamper with messages, you can sign messages with RSA keys and implement a whitelist in the receptors. The helyOS core distributes RSA public keys to verify message authenticity.  
+In scenarios where imposter or valid agents might tamper with messages, you can sign messages with RSA keys and implement a whitelist in the receptors. helyOS core automatically sign all its messages using RSA (SHA-256).
+You can configure helyOS core using the Dashboard to check the RSA (SHA-256) signature of incoming messages. 
+The helyOS core can also be used to distribute the agents' RSA public keys.
 
-This method ensures both authenticity of the agent and message origin,  such that agents cannot produce tampered messages, as verification occurs upon message reception.
+This method ensures both agent authenticity and message origin indepedent of the protocol,  such that agents cannot produce tampered messages, as verification occurs upon message reception.
 
 Unexpected Messages from Devices
 -------------------------------------------------------
