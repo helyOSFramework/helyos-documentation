@@ -28,6 +28,7 @@ However, once verify_peer is enabled, certificates must be created for each one 
 
 This approach **does not solve the problem of message tampering**, where an authenticated agent might send malicious commands to another agent. For AMQP only, you can mitigate this risk by combining the **verify_peer** method with RabbitMQ's `user_id` validation (`validated-user-id`_ ) and implementing a whitelist in the receptors. This combination  ensure that only messages from authenticated agents from the correct origin are executed.
 
+.. _validated-user-id: https://www.rabbitmq.com/docs/validated-user-id
 
 Imposter Agent via Stolen Credentials + Message Tampering
 ----------------------------------------------------------
