@@ -9,4 +9,4 @@ Applications
     :maxdepth: 1
 
     complex-orchestrations
-    security-remarkds
+    security-remarks
