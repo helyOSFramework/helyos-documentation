@@ -8,7 +8,7 @@ MITM on helyOS Core and Data Exposure
 
 **Target:** External Apps
 
-To mitigate Man-In-The-Middle (MITM) attacks on the helyOS core and prevent data exposure, you should utilize SSL for HTTPS via a server-proxy. This can be done by deploying a load-balancer or web server (e.g., nginx).
+To mitigate Man-In-The-Middle (MITM) attacks on the helyOS core and prevent data exposure, you should utilize SSL for HTTPS via a server-proxy. This can be done by deploying a load balancer or web server (e.g., nginx).
 
 MITM on RabbitMQ Server and Data Exposure
 -----------------------------------------
@@ -26,7 +26,7 @@ To prevent imposter agents from using stolen credentials, you can activate Rabbi
 
 However, once verify_peer is enabled, certificates must be created for each one of the agent, and the certificate authority file for each agent must be loaded into the RabbitMQ server.
 
-This approach **does not solve the problem of message tampering**, where an authenticated agent might send malicious commands to another agent. For AMQP only, you can mitigate this risk by combining the **verify_peer** method with RabbitMQ's `user_id` validation (`validated-user-id`_ ) and implementing a whitelist in the receptors. This combination  ensure that only messages from authenticated agents from the correct origin are executed.
+This approach **does not solve the problem of message tampering**, where an authenticated agent might send malicious commands to another agent. For AMQP only, you can mitigate this risk by combining the **verify_peer** method with RabbitMQ's `user_id` validation (`validated-user-id`_ ) and implementing a whitelist in the receptors. This combination ensures that only messages from authenticated agents from the correct origin are executed.
 
 .. _validated-user-id: https://www.rabbitmq.com/docs/validated-user-id
 
@@ -35,11 +35,11 @@ Imposter Agent via Stolen Credentials + Message Tampering
 
 **Target:** helyOS core & Agents
 
-In scenarios where imposter or valid agents might tamper with messages, you can sign messages with RSA keys and implement a whitelist in the receptors. helyOS core automatically sign all its messages using RSA (SHA-256).
+In scenarios where imposters or valid agents might tamper with messages, you can sign messages with RSA keys and implement a whitelist in the receptors. helyOS core automatically signs all its messages using RSA (SHA-256).
 You can configure helyOS core using the Dashboard to check the RSA (SHA-256) signature of incoming messages. 
 The helyOS core can also be used to distribute the agents' RSA public keys.
 
-This method ensures both agent identity and message origin indepedent of the protocol,  such that agents cannot produce tampered messages, as verification occurs upon message reception.
+This method ensures both agent identity and message origin independent of the protocol,  such that agents cannot produce tampered messages, as verification occurs upon message reception.
 
 Unexpected Messages from Devices
 -------------------------------------------------------
@@ -67,4 +67,4 @@ Misuse of AGENT_REGISTRATION_TOKEN in Production
 
 **Target:** helyOS core & Agents
 
-Auto registration of agents is a feature to facilitate the development, it should not be used in production. To prevent the misuse of `AGENT_REGISTRATION_TOKEN` in production environments, please remove the token and delete the RabbitMQ `anonymous` account. Furthermore, ensure that the RabbitMQ guest account is removed.
+Auto registration of agents is a feature to facilitate development, it should not be used in production. To prevent the misuse of `AGENT_REGISTRATION_TOKEN` in production environments, please remove the token and delete the RabbitMQ `anonymous` account. Furthermore, ensure that the RabbitMQ guest account is removed.
