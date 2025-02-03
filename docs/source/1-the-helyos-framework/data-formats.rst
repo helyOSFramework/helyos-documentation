@@ -51,7 +51,7 @@ In the helyOS framework, the assignment is originated from a microservice [*]. T
 
         results: AssignmentPlan[]; // array of assignments.
 
-        dispatch_order?: number[][]; // order in which the assignments will be dispatched to the agents.
+        dispatch_order?: number[][]; // DEPRECATED: order in which the assignments will be dispatched to the agents.
 
     }
 
@@ -59,6 +59,7 @@ In the helyOS framework, the assignment is originated from a microservice [*]. T
         agent_id?: number; // id of the agent that will receive the assignment.
         agent_uuid?: string; // UUID of the agent that will receive the assignment.
         assignment: any; // assignment data, usually defined by the agent vendor.
+        assignment_order: number // order to dispatch the assignment.
     }
 
 
