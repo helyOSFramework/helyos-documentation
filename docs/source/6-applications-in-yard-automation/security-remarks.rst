@@ -8,14 +8,14 @@ MITM on helyOS Core and Data Exposure
 
 **Target:** External Apps
 
-To mitigate Man-In-The-Middle (MITM) attacks on the helyOS core and prevent data exposure, you should utilize SSL for HTTPS via a server-proxy. This can be done by deploying a load balancer or web server (e.g., nginx).  The helyOS core server `Certificate Authority` data should be present in the applications.
+To mitigate Man-In-The-Middle (MITM) attacks on the helyOS core and prevent data exposure, you should utilize TLS for HTTPS via a server-proxy. This can be done by deploying a load balancer or web server (e.g., nginx).  The helyOS core server `Certificate Authority` data should be present in the applications.
 
 MITM on RabbitMQ Server and Data Exposure
 -----------------------------------------
 
 **Target:** Agents & External Apps
 
-To protect against MITM attacks on the RabbitMQ server and ensure data security, you should enable SSL for AMQPS/MQTTS. RabbitMQ supports  TLS in AMQP and MQTT protocols. The RabbitMQ server `Certificate Authority` data should be loaded by the agents.
+To protect against MITM attacks on the RabbitMQ server and ensure data security, you should enable TLS for AMQPS/MQTTS. RabbitMQ supports  TLS in AMQP and MQTT protocols. The RabbitMQ server `Certificate Authority` data should be loaded by the agents.
 
 Imposter Agent via Stolen Credentials
 -------------------------------------
@@ -37,9 +37,10 @@ Imposter Agent via Stolen Credentials + Message Tampering
 
 In scenarios where imposters or valid agents might tamper with messages, you can sign messages with RSA keys and implement a whitelist in the receptors. helyOS core automatically signs all its messages using RSA (SHA-256).
 You can configure helyOS core using the Dashboard to check the RSA (SHA-256) signature of incoming messages. 
-The helyOS core can also be used to distribute the agents' RSA public keys.
+The helyOS core can also be used to distribute the agents' RSA public keys to the message recpetors.
 
-This method ensures both agent identity and message origin independent of the protocol,  such that agents cannot produce tampered messages, as verification occurs upon message reception.
+Individual message signature mitigates both threats "Imposter Agent via Stolen Credentials" and "Message Tampering" independent of protocol.
+The signature must be verified though upon each message reception.
 
 Unexpected Messages from Devices
 -------------------------------------------------------
