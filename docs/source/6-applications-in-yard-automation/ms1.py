@@ -16,12 +16,13 @@ def getPath():
                 "results":[{
                             "agent_uuid": 'AGENT-A',
                             "assignment": assignment1A
+                            "assignment_order": 1
                             },
                             {
                             "agent_uuid": 'AGENT-B',
                             "assignment": assignment1B
+                            "assignment_order": 2
                             }],
-                "dispatch_order" : [ [0] , [1] ]
                 }
     
     return jsonify(response)

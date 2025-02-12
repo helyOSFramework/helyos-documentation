@@ -135,7 +135,7 @@ Service Response: from Microservices to helyOS
 
           results: AssignmentPlan[] | MapUpdate | any;
 
-          dispatch_order?: number[][]; 
+          dispatch_order?: number[][]; // DEPRECATED
 
           orchestration?: {
                     nex_step_request?: [step: string]: any; // input data to be sent to the next microservice(s).
@@ -230,7 +230,7 @@ Assignments are created by microservices in the *Assignment Planner* domain. A m
 
           results: AssignmentPlan[]; // array of assignments.
 
-          dispatch_order?: number[][]; // order in which the assignments will be dispatched to the agents.
+          dispatch_order?: number[][]; // DEPRACATED: order in which the assignments will be dispatched to the agents.
 
           orchestration?: {
                     nex_step_request?: [step: string]: any; 
@@ -244,6 +244,7 @@ Assignments are created by microservices in the *Assignment Planner* domain. A m
           agent_uuid?: string; // UUID of the agent that will receive the assignment.
           assignment: any; // assignment data, usually defined by the agent vendor.
           on_assignment_failure?: 'RELEASE_FAILED' | 'CONTINUE_MISSION' | 'FAIL_MISSION';
+          assignment_order: number // order to dispatch the assignment.
       }
 
 
@@ -251,7 +252,8 @@ Assignments are created by microservices in the *Assignment Planner* domain. A m
 This microservice response data structure, as defined before, will contains the assignment data in the **results** field.
 
 - **results:** it is an array of assignments where each assignment is ascribed to a agent id. 
-- **dispatch_order:**  When assignments must be executed sequentially, this variable is defined as an array of the element indexes of the results array. The order of the indexes defines the order in which the corresponding assignment will be dispatched to the agent. E.g., [[0], [1,2], [3,4,5]] means that the first assignment will be dispatched first, then the second and third assignments will be dispatched simultaneously, and finally the fourth, fifth and sixth assignments will be dispatched simultaneously.
+- **assignment_order:**  When assignments must be executed sequentially, this variable is defined as the assignment order,  starting by 1. E.g., If two assignment are marked with assignment_order=2, they will be dispatched simultaneously after the completing of the assignemtn marked with assignment_order=1;
+- **dispatch_order:**  DEPRACATED. When assignments must be executed sequentially, this variable is defined as an array of the element indexes of the results array. The order of the indexes defines the order in which the corresponding assignment will be dispatched to the agent. E.g., [[0], [1,2], [3,4,5]] means that the first assignment will be dispatched first, then the second and third assignments will be dispatched simultaneously, and finally the fourth, fifth and sixth assignments will be dispatched simultaneously.
 
 
 In the AssignmentPlan, the **assignment** field is a user-defined JSON field that contains the data necessary for the agent to execute the assignment.
@@ -261,7 +263,7 @@ The **on_assignment_failure** is an optional field that can be used to override 
 .. note:: 
   | Note: You cannot send more than one mission at once to a same agent. However, you can SEND SEVERAL ASSIGNMENTS to a same agent! For this, add the assignments into the **results** array with the same **agent_id**.
   
-  | Use the **dispatch_order** field to let helyOS to sequentially dispatch the assignments to a same agent. Otherwise the assignments will be sent simultaneously; in this case, the agent would need to be smart enough to consume and handle the assignments in the correct order.
+  | Use the **assignment_order** field to let helyOS to sequentially dispatch the assignments to a same agent. Otherwise the assignments will be sent simultaneously; in this case, the agent would need to be smart enough to consume and handle the assignments in the correct order.
 
 
 Mission Sequence

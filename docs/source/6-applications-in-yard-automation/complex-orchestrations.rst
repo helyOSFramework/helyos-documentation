@@ -28,7 +28,7 @@ To acomplish this, we employed the following microservices:
 Microservice 1 and 2 are `Assignmnent Planners`, while 3 is a `Storage Server`.
 The microservice 1 produces two assignments that are executed sequentially by the agents.
 The microservice 2 produces two assigments that are executed in parallel. The order of that the assignments are dispatched 
-to the agents is defined within the microservice through  the property `dispatch_order`, you can read more about it in :ref:`fromMsToHelyOS`.
+to the agents is defined within the microservice through  the property `assignment_order`, you can read more about it in :ref:`fromMsToHelyOS`.
 
 .. note:: 
     The Microservice 1 and 2 could also be merged into a single service which is called at two different steps in the mission. One can retrieve the mission recipe property `step` from the `context` and use as a parameter. The developer should decide the best approach taking into account the principle of separation of concerns, team responsabilities, etc.  

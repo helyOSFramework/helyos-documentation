@@ -35,40 +35,59 @@ RabbitMQ Connection
     RabbitMQ is the message broker used by helyOS to communicate with the agents. 
     helyOS core does not only publish and consume messages from the RabbitMQ server, but also creates the necessary accounts, topic exchanges and queues.
     
-- RABBITMQHOST: hostname for rabbitmq server.
-- RABBITMQPORT: connecting port for AMQP clients.
-- RBMQ_API_PORT:  configuration port for REST API for rabbitmq server. It is used to create the rabbitmq accounts.     
-- RBMQ_SSL= True or False.  If True, the AMQP connection to rabbitmq server is encrypted using TSL.
-- RBMQ_API_SSL= True or False.  If True, the API connection to rabbitmq server encrypted (default = RBMQ_SSL ).
+- RBMQ_HOST: hostname for RabbitMQ server.
+- RBMQ_PORT: connecting port for AMQP clients.
+- RBMQ_API_PORT:  configuration port for REST API for RabbitMQ server. It is used to create the RabbitMQ accounts.     
+- RBMQ_SSL: True or False.  If True, the AMQP connection to RabbitMQ server is encrypted using TSL.
+- RBMQ_API_SSL: True or False.  If True, the API connection to RabbitMQ server encrypted (default = RBMQ_SSL ).
+- RBMQ_VHOST: virtual host of RabbitMQ server.
 
-- CREATE_RBMQ_ACCOUNTS: True or False.  helyOS automatically creates the rabbitmq accounts 
-- RBMQ_ADMIN_USERNAME: rabbitmq admin username (required if CREATE_RBMQ_ACCOUNTS is True)
-- RBMQ_ADMIN_PASSWORD: rabbitmq admin password (required if CREATE_RBMQ_ACCOUNTS is True)
-- RBMQ_USERNAME: rabbitmq regular account username (defaults to RBMQ_ADMIN_USERNAME)
-- RBMQ_PASSWORD: rabbitmq regular account password (defaults to RBMQ_ADMIN_PASSWORD)
+- CREATE_RBMQ_ACCOUNTS: True or False.  helyOS automatically creates the RabbitMQ accounts 
+- RBMQ_ADMIN_USERNAME: RabbitMQ admin username (required if CREATE_RBMQ_ACCOUNTS is True)
+- RBMQ_ADMIN_PASSWORD: RabbitMQ admin password (required if CREATE_RBMQ_ACCOUNTS is True)
+- RBMQ_USERNAME: RabbitMQ regular account username (defaults to RBMQ_ADMIN_USERNAME)
+- RBMQ_PASSWORD: RabbitMQ regular account password (defaults to RBMQ_ADMIN_PASSWORD)
 
 (Optional settings) 
 
 - AGENTS_UL_EXCHANGE:  exchange topic to send data to agents
 - AGENTS_DL_EXCHANGE:  exchange topic to receive data to agents
-- CHECK_IN_QUEUE: rabbitmq queue name where agents must publish to perform check in.
-- AGENT_UPDATE_QUEUE: rabbitmq queue name where high priority messages from agents are published.
+- CHECK_IN_QUEUE: RabbitMQ queue name where agents must publish to perform check in.
+- AGENT_UPDATE_QUEUE: RabbitMQ queue name where high priority messages from agents are published.
+
+
+REDIS Connection
+===================
+    REDIS is an im-memory database that is employed only when you scale the helyOS core, either by increase the number of threads or instances. 
+    You can also use any in-memory database that is compatible with the Redis API
+    
+- REDIS_HOST: hostname for REDIS server.
+- REDIS_PORT: connecting port for REDIS clients.
+- REDIS_PASSWORD:  REDIS password.     
 
 
 helyOS Settings
 ===============
 
+- SERVER_PATH_BASE: set an endpoint to serve dashboard, graphql and websocket. To be used as a namespace to serve several helyOS projects under the same hostname.
 - ENCRYPT (not implemented yet): none | agent | helyos | helyos-agent. RSA encription betwenn helyos core and agent. 
-  This is an additional encription to the TSL layer used by the RAbbitMQ (default = none)
+  This is an additional encription to the TSL layer used by the RabbitMQ (default = none)
 - MESSAGE_RATE_LIMIT:  maximum burst of number of messages per second that an agent is allowed publish to helyOS. (default = 150)  
 - MESSAGE_UPDATE_LIMIT: maximum burst of number of database updates per second originated from messages publishing. E.g. status update messages. (default = 20)
 - WAIT_AGENT_STATUS_PERIOD:  time in seconds that helyOS waits for an agent to change to the required status before triggering a mission. (default = 20)
 - DB_BUFFER_TIME: time in milliseconds that helyOS collects updates before pushing them to the database. It is used for non-prioritized updates. (default = 1000)
 
+(Scaling settings)
+
+- NUM_THREADS: Number of threads using node cluster. For any value greater than 1 you need to connect helyOS to a REDIS server. (default = 1)
+- SOCKET_IO_ADAPTER: use "cluster" for single instance and multiple threads, or "redis" when running multiple instances of helyOS core (default = 'none')
+
 (Optional settings)
 
 - PREFETCH_COUNT:  number of messages that the RabbitMQ server delivers to the agent at once. (default = 100).
-- AGENT_REGISTRATION_TOKEN:  It is used to authenticate the agents that were not previoulsy registered in helyOS.
+- TTL_VISUAL_MSG:  time to live of messages on the vizualiation channels in milliseconds. (default = 2000).
+- TTL_STATE_MSG:  time to live of messages on the state channels in milliseconds. (default = 36000).
+- AGENT_REGISTRATION_TOKEN:  To be used only for development! It is used to automatically register and authenticate the agents that were not previoulsy registered in helyOS.
 - MOCK_SERVICES: True or False.  If True, the services are mocked. It is used only for automated tests purposes. (default = False)
 - TLS_REJECT_UNAUTHORIZED: True or False.  If True, the TLS connection is rejected if the certificate is not valid. (default = True)
 - DEBUG: True or False.  If True, the helyos core log is more verbose. (default = False)
@@ -132,15 +151,15 @@ Snippet of a *docker-compose.yml*
                 - PGDATABASE=my_application_db
                 - PGPORT=5432
                 - 
-                # RABBITMQ
-                - RABBITMQHOST=rabbitmq.server.com
-                - RABBITMQPORT=5672
+                # RabbitMQ
+                - RabbitMQHOST=RabbitMQ.server.com
+                - RabbitMQPORT=5672
                 - RBMQ_API_PORT=15672  
                 - RBMQ_SSL= False 
                 - RBMQ_API_SSL= False
         
                 # RBMQ ACCOUNTS
-                - CREATE_RBMQ_ACCOUNTS=True #if helyOS creates the rabbitmq accounts 
+                - CREATE_RBMQ_ACCOUNTS=True #if helyOS creates the RabbitMQ accounts 
                 - RBMQ_ADMIN_USERNAME=helyos_core 
                 - RBMQ_ADMIN_PASSWORD=${RBMQ_PASSWORD} 
     
